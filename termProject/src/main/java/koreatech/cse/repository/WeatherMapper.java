@@ -1,12 +1,8 @@
 package koreatech.cse.repository;
 
-import koreatech.cse.domain.Searchable;
 import koreatech.cse.domain.rest.Weather;
-import koreatech.cse.repository.provider.WeatherSqlProvider;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface WeatherMapper {
@@ -24,14 +20,4 @@ public interface WeatherMapper {
     @Delete("DELETE FROM WEATHERS WHERE ID = #{id}")
     void delete(@Param("id") int id);
 
-    @SelectProvider(type = WeatherSqlProvider.class, method = "findAllByProvider")
-    List<Weather> findByProvider(Searchable searchable);
-
-    //@formatter off
-    @Select("<script>"
-            + "SELECT * FROM WEATHERS"
-            + "<if test='orderParam != null'>ORDER BY ${orderParam} DESC</if>"
-            + "</script>")
-    //@formatter on
-    List<Weather> findByScript(Searchable searchable);
-}
+    }

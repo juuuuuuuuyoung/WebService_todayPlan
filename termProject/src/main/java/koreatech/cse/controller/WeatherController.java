@@ -93,10 +93,10 @@ public class WeatherController {
         System.out.println("Find Location POST");
         System.out.println(weather.toString());
 
-        if(weather.getProvince() != null || weather.getCity() != null || weather.getProvince() != null) {
-            model.addAttribute("province", weather.getProvince());
-            model.addAttribute("city", weather.getCity());
-            model.addAttribute("region", weather.getRegion());
+        if(weather.getAddr_depth1() != null || weather.getAddr_depth2() != null || weather.getAddr_depth3() != null) {
+            model.addAttribute("province", weather.getAddr_depth1());
+            model.addAttribute("city", weather.getAddr_depth2());
+            model.addAttribute("region", weather.getAddr_depth3());
 
             return "redirect:/weather/result/address";
         }

@@ -2,7 +2,6 @@ package koreatech.cse.repository;
 
 import koreatech.cse.domain.rest.Area;
 import koreatech.cse.domain.Searchable;
-import koreatech.cse.repository.provider.AreaSqlProvider;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -14,11 +13,9 @@ public interface AreaMapper {
     @SelectKey(statement = "SELECT LAST_INSERT_ID()", keyProperty = "id", before = false, resultType = int.class)
     void insert(Area area);
     
-    @Select("SELECT * FROM AREAS WHERE KOR_NM = #{korNm}")
-    Area findOne(@Param("korNm") String korNm);
+    @Select("SELECT FULL_CD FROM AREAS WHERE KOR_NM = #{korNm}")
+    String findOneFullCD(@Param("korNm") String korNm);
 
-    @SelectProvider(type = AreaSqlProvider.class, method = "findAllByProvider")
-    List<Area> findByProvider(Searchable searchable);
 
     //@formatter off
     @Select("<script>"

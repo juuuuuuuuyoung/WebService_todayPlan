@@ -2,11 +2,12 @@ package koreatech.cse.service;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import koreatech.cse.domain.rest.Movie;
 import koreatech.cse.repository.AreaMapper;
-import koreatech.cse.repository.WeatherMapper;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,10 +24,11 @@ public class MovieService {
     @Inject
     AreaMapper areaMapper;
 
-    public ArrayList<Movie> readUrl(String targetDt){
-        /** 해당 지역 받기 **/
-        //areaMapper.findOne
+    public ArrayList<Movie> readUrl(String targetDt, String wideArea, String multiMovieYn, String repNationCd){
 
+        System.out.println("@@@@@\n" + wideArea);
+        System.out.println("@@@@@\n" + multiMovieYn);
+        System.out.println("@@@@@\n" + repNationCd);
 
         /** 해당 지역 영화 정보 받아오기 */
 
@@ -39,8 +41,12 @@ public class MovieService {
         URI url = UriComponentsBuilder.fromUriString("http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?")
                 .queryParam("key", "e02513baa82320de545208781377a3c1")
                 .queryParam("targetDt", targetDt)
+                .queryParam("wideArea", wideArea)
+                .queryParam("multiMovieYn", multiMovieYn)
+                .queryParam("repNationCd", repNationCd)
                 .build()
                 .toUri();
+
 
         String result = "";
         try {
@@ -63,9 +69,8 @@ public class MovieService {
 
 
         ArrayList<Movie> movies = new ArrayList<Movie>();
-        String targetDt2 = targetDt.substring(0, 4) + "-" + targetDt.substring(4,6) + "-" + targetDt.substring(6,8);
-
-        System.out.println(targetDt2);
+        targetDt = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        System.out.println(targetDt);
         for(int i = 0 ; i < array.size(); i++) {
             Movie tempMovie = new Movie();
             JSONObject entity = (JSONObject)array.get(i);
@@ -77,13 +82,10 @@ public class MovieService {
             tempMovie.setRnum(rnum);
             tempMovie.setMovieNm(movieNm);
             tempMovie.setOpenDt(openDt);
-            tempMovie.setTargetDt(targetDt2);
+            tempMovie.setTargetDt(targetDt);
+            tempMovie.setWideArea(wideArea);
             movies.add(tempMovie);
         }
-
-
-
-
 
         return movies;
     }

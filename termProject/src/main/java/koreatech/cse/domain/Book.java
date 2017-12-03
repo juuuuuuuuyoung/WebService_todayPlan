@@ -4,8 +4,14 @@ public class Book {
     private int id;
     private String title;
     private String author;
-    private int page;
-    private int userId;
+    private String imageUrl;
+    private String categoryId;
+    private String categoryName;
+    private String description;
+    private String publisher;
+    private String link;
+    private String mobileLink;
+    private Long price;
 
     public int getId() {
         return id;
@@ -31,25 +37,97 @@ public class Book {
         this.author = author;
     }
 
-    public int getPage() {
-        return page;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setPage(int page) {
-        this.page = page;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
-    public int getUserId() {
-        return userId;
+    public String getCategoryId() {
+        return categoryId;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    public String getMobileLink() {
+        return mobileLink;
+    }
+
+    public void setMobileLink(String mobileLink) {
+        this.mobileLink = mobileLink;
+    }
+
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
+
+    public void setAll(String title, String author, String imageUrl, String description, String publisher, String link, String mobileLink, String categoryId, String categoryName, long price) {
+        this.title = title;
+        this.author = author;
+        this.imageUrl = imageUrl;
+        this.description = description;
+        this.publisher = publisher;
+        this.link = link;
+        this.mobileLink = mobileLink;
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+        this.price = price;
     }
 
     @Override
     public String toString() {
-        return "id: " + id + ", title: " + title
-                + ", author: " + author + ", page: " + page + ", userId: " + userId;
+        return "Book{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", categoryId='" + categoryId + '\'' +
+                ", categoryName='" + categoryName + '\'' +
+                ", description='" + description + '\'' +
+                ", publisher='" + publisher + '\'' +
+                ", link='" + link + '\'' +
+                ", mobileLink='" + mobileLink + '\'' +
+                ", price=" + price +
+                '}';
     }
 }

@@ -10,9 +10,9 @@ public class Weather {
     private String dustGrade;
     private String lon;
     private String lat;
-    private String province;
-    private String city;
-    private String region;
+    private String addr_depth1;
+    private String addr_depth2;
+    private String addr_depth3;
     private String location;
     
     private String version = "1";
@@ -89,28 +89,28 @@ public class Weather {
         this.version = version;
     }
 
-    public String getProvince() {
-        return province;
+    public String getAddr_depth1() {
+        return addr_depth1;
     }
 
-    public void setProvince(String province) {
-        this.province = province;
+    public void setAddr_depth1(String addr_depth1) {
+        this.addr_depth1 = addr_depth1;
     }
 
-    public String getRegion() {
-        return region;
+    public String getAddr_depth2() {
+        return addr_depth2;
     }
 
-    public void setRegion(String region) {
-        this.region = region;
+    public void setAddr_depth2(String addr_depth2) {
+        this.addr_depth2 = addr_depth2;
     }
 
-    public String getCity() {
-        return city;
+    public String getAddr_depth3() {
+        return addr_depth3;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public void setAddr_depth3(String addr_depth3) {
+        this.addr_depth3 = addr_depth3;
     }
 
     public String getLocation() {
@@ -132,9 +132,9 @@ public class Weather {
                 ", dustGrade='" + dustGrade + '\'' +
                 ", lon='" + lon + '\'' +
                 ", lat='" + lat + '\'' +
-                ", province='" + province + '\'' +
-                ", city='" + city + '\'' +
-                ", region='" + region + '\'' +
+                ", addr_depth1='" + addr_depth1 + '\'' +
+                ", addr_depth2='" + addr_depth2 + '\'' +
+                ", addr_depth3='" + addr_depth3 + '\'' +
                 ", location='" + location + '\'' +
                 ", version='" + version + '\'' +
                 '}';

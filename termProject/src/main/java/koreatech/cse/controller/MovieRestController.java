@@ -25,10 +25,13 @@ public class MovieRestController {
 
         ArrayList<Movie> movies = new ArrayList<Movie>();
 
+        // 예시
+        String wideArea = areaMapper.findOneFullCD("천안");
+
         if(targetDt.equals(""))
             targetDt="20170101";
         try {
-            movies = movieService.readUrl(targetDt);
+            movies = movieService.readUrl(targetDt, wideArea, "Y", "K");
         } catch (Exception e) {
             e.printStackTrace();
         }

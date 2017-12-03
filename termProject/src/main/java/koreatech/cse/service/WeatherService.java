@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.net.*;
+import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -16,7 +17,7 @@ import org.json.simple.parser.JSONParser;
 @Service
 public class WeatherService {
 
-    public boolean loadWeatherByArea(Weather weather) {
+    public HttpStatus loadWeatherByArea(Weather weather) {
 
         /** 주소로 위도 경도 파싱 */
         HttpHeaders headers = new HttpHeaders();
@@ -34,15 +35,13 @@ public class WeatherService {
         String result = "";
         try {
             response = rest.exchange(url.toURL().toString(),HttpMethod.GET, request, String.class);
+            System.out.println(url.toURL().toString());
         } catch (MalformedURLException e) {
             System.out.println(e);
         }
 
         result = response.getBody();
-
-        try {
-            System.out.println(url.toURL().toString());
-        } catch (Exception e) {};
+        System.out.println("#HTTP STATUS#" + response.getStatusCode().toString());
 
         JSONParser jsonParser = new JSONParser();
         System.out.println(result);
@@ -52,27 +51,58 @@ public class WeatherService {
             jsonObj = (JSONObject) jsonParser.parse(result);
         } catch(Exception e) {}
 
+        /** 결과 있는지 확인 **/
+        JSONObject metaObject = (JSONObject) jsonObj.get("meta");
+        long totalCount = (Long) metaObject.get("total_count");
+
+        if(totalCount == 0) return HttpStatus.BAD_REQUEST;
+
+        /** 결과 있으면 위치 읽기 **/
         JSONArray subObj = (JSONArray) jsonObj.get("documents");
         JSONObject subObj1= (JSONObject) subObj.get(0);
         String address_name= (String) subObj1.get("address_name");
         String y = (String) subObj1.get("y");
         String x = (String) subObj1.get("x");
 
-        System.out.println("##");
-        System.out.println(address_name + " " + y + ", " + x);
-        System.out.println("##");
 
         weather.setLocation(address_name);
         weather.setLat(y);
         weather.setLon(x);
 
+        /** 주소를 도, 시, 동으로 나누고 weather에 설정하기 -> Movie wideArea 설정에 필요 */
+        ArrayList<String> split_addr = new ArrayList<String>();
+        String str = "";
+        for(int i=0; i<address_name.length(); i++) {
+            if (address_name.charAt(i) == ' ') {
+                split_addr.add(str);
+                str = "";
+                continue;
+            }
+            str += address_name.charAt(i);
+            if (i == address_name.length() - 1) {
+                split_addr.add(str);
+            }
+        }
+        for(int i=0; i<split_addr.size(); i++) {
+            switch (i) {
+                case 0 :
+                    weather.setAddr_depth1(split_addr.get(i)); break;
+                case 1 :
+                    weather.setAddr_depth2(split_addr.get(i)); break;
+                case 2 :
+                    weather.setAddr_depth3(split_addr.get(i)); break;
+                default:
+                    break;
+            }
+        }
 
         /** 날씨 로드 */
         parseWeatherInformation(weather);
 
         /** 미세먼지 로드 */
         parseDustInformation(weather);
-        return true;
+
+        return HttpStatus.OK;
     }
 
     public boolean loadWeatherByAxis(Weather weather) {
