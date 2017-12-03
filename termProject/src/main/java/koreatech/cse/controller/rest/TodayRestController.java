@@ -38,8 +38,8 @@ public class TodayRestController {
     // {location} 위치의 {targetDt}의 날짜의 영화 가져오기 --
     @Transactional
     @RequestMapping(value="/today", method= RequestMethod.GET, produces = "application/json")
-    //public ResponseEntity<Today> today2(@PathVariable("location") String location, @PathVariable("targetDt") String targetDt) {
-    public ResponseEntity<Today> today2(@RequestParam("location") String location, @RequestParam(name = "targetDt") String targetDt,
+    public ResponseEntity<Today> today2(@RequestParam("location") String location,
+                                        @RequestParam(name = "targetDt", required = false) String targetDt,
                                         @RequestParam(name = "multiMovieYn", required = false) String multiMovieYn,
                                         @RequestParam(name="reNationCd", required = false) String repNationCd,
                                         @RequestParam(name="categoryName", required = false, defaultValue = "국내도서") String categoryName) {
@@ -64,7 +64,7 @@ public class TodayRestController {
         ArrayList<Movie> movies;
         String wideArea = areaMapper.findOneFullCD(weather.getAddr_depth1());
 
-        if(targetDt.equals("")) {
+        if( targetDt == null || targetDt.equals("") ) {
             Calendar calendar = new GregorianCalendar();
             calendar.add(Calendar.DATE, -1);
             targetDt = new SimpleDateFormat("yyyyMMdd").format(calendar.getTime());
