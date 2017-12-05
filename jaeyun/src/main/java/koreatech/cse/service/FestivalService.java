@@ -122,7 +122,7 @@ public class FestivalService {
         return festivals;
     }
     
-    public void sortByDistance(ArrayList<Festival> festivals) {
+    public void sortByDistance(ArrayList<Festival> festivals,String origin, String sortType) {
         /** 소요시간 및 정보 가져오기 **/
         for(int i=0; i<festivals.size(); i++) {
             HttpHeaders headers = new HttpHeaders();
@@ -130,8 +130,9 @@ public class FestivalService {
             HttpEntity request = new HttpEntity(headers);
             ResponseEntity<String> response = null;
             RestTemplate rest = new RestTemplate();
-            URI url = UriComponentsBuilder.fromUriString("https://maps.googleapis.com/maps/api/directions/json?key=AIzaSyAY8nrL5q2WEN5L1mr6nyeC1NwJ5Va0W2Q&origin=36.765371699999996,127.28594249999999&mode=transit")
+            URI url = UriComponentsBuilder.fromUriString("https://maps.googleapis.com/maps/api/directions/json?key=AIzaSyAY8nrL5q2WEN5L1mr6nyeC1NwJ5Va0W2Q&mode=transit")
                     .queryParam("destination", festivals.get(i).getDestLocation())
+                    .queryParam("origin", origin)
                     .build()
                     .toUri();
 
@@ -165,12 +166,14 @@ public class FestivalService {
             festivals.get(i).setDuration(duration);
 
             JSONObject arrivalTimeObj = (JSONObject) pathObj.get("arrival_time");
-            String arrivalTime = (String) arrivalTimeObj.get("text");
+            Long arrivalTime = (Long) arrivalTimeObj.get("value");
             festivals.get(i).setArrivalTime(arrivalTime);
 
             JSONObject departureTimeObj = (JSONObject) pathObj.get("departure_time");
             String departureTime = (String) departureTimeObj.get("text");
-            festivals.get(i).setArrivalTime(departureTime);
+            festivals.get(i).setDepartureTime(departureTime);
+
+            festivals.get(i).setSortType(sortType);
         }
 
         /** 소요시간 소팅 **/

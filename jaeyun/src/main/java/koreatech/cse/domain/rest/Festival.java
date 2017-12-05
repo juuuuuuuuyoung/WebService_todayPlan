@@ -12,14 +12,14 @@ public class Festival implements Comparable<Festival>{
     private String destAddress;     // 목적지 주소
     private String path;            // 경로
     private Long duration;
-    private String arrivalTime;
+    private Long arrivalTime;
     private String departureTime;
     private String imgUrl;          // 이미지 url
     private String recommend;
     private String sky;
     private String dustValue;
     private String dustGrade;
-
+    private String sortType; // 정렬기준 0이면 소요시간 1이면 도착시간
 
     public int getId() {
         return id;
@@ -109,11 +109,11 @@ public class Festival implements Comparable<Festival>{
         this.dustGrade = dustGrade;
     }
 
-    public String getArrivalTime() {
+    public Long getArrivalTime() {
         return arrivalTime;
     }
 
-    public void setArrivalTime(String arrivalTime) {
+    public void setArrivalTime(Long arrivalTime) {
         this.arrivalTime = arrivalTime;
     }
 
@@ -158,6 +158,14 @@ public class Festival implements Comparable<Festival>{
         this.recommend = recommend;
     }
 
+    public String getSortType() {
+        return sortType;
+    }
+
+    public void setSortType(String sortType) {
+        this.sortType = sortType;
+    }
+
     @Override
     public String toString() {
         return "Festival{" +
@@ -182,13 +190,23 @@ public class Festival implements Comparable<Festival>{
     }
 
     public int compareTo(Festival f) {
-
-        if (this.duration > f.duration) {
-            return 1;
-        } else if(this.duration < f.duration) {
-            return -1;
-        } else {
-            return 0;
+        if(f.sortType.equals("1")){
+            if (this.arrivalTime > f.arrivalTime) {
+                return 1;
+            } else if (this.arrivalTime < f.arrivalTime) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+        else {
+            if (this.duration > f.duration) {
+                return 1;
+            } else if (this.duration < f.duration) {
+                return -1;
+            } else {
+                return 0;
+            }
         }
 
     }

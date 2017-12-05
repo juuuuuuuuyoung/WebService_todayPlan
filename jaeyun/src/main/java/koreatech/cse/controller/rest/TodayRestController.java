@@ -44,7 +44,8 @@ public class TodayRestController {
                                         @RequestParam(name = "targetDt", required = false) String targetDt,
                                         @RequestParam(name = "multiMovieYn", required = false) String multiMovieYn,
                                         @RequestParam(name="reNationCd", required = false) String repNationCd,
-                                        @RequestParam(name="categoryName", required = false, defaultValue = "국내도서") String categoryName) {
+                                        @RequestParam(name="categoryName", required = false, defaultValue = "국내도서") String categoryName,
+                                        @RequestParam(name="festSortType",required = false,defaultValue = "0") String festSortType) {
         Today today = new Today();
 
 
@@ -100,37 +101,24 @@ public class TodayRestController {
 
         /** 축제 */
         //현재 위치
-        //String origin =festival.getLocation();
+        String origin =weather.getLon()+","+weather.getLat();
         //현재 날짜 구하기
         SimpleDateFormat formatter01 = new SimpleDateFormat("yyyyMMdd");
-        //현재 날짜를 삽입
+        //현재 날짜를 eventStartDate에 삽입
         String eventStartDate=formatter01.format(new Date());
         System.out.println("eventStartDate : "+ eventStartDate);
 
-        //축제 정보 조회해서 주소 받기 -> festival 목록받기
+        //festival 목록받기
         ArrayList<Festival> festivals  = festivalService.findFestivalByDate(eventStartDate);
 
         // 축제에서 날 안좋은것 거르기 --> 거르지 않음..
         festivalService.removeBadWeather(festivals);
 
-        Long time = 1000000000L;
-        int minNum = -1;
+        //sortType에 맞춰 정렬하기
+        festivalService.sortByDistance(festivals,origin,festSortType);
 
-
-        festivalService.sortByDistance(festivals);
-
-
-
+        //today에 festival 객체 넣기
         today.setFestival(festivals);
-
-        //System.out.println(festival.toString()); //json형태로 출력
-
-        //출력을 하고싶은데 못하네요......
-        //model.addAttribute("path",minTimePath);
-        //model.addAttribute("name",title);
-
-        //return "redirect:/festival/pathResult";
-
 
         return new ResponseEntity<Today>(today, HttpStatus.OK);
     }
