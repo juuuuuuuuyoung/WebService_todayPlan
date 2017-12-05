@@ -1,6 +1,8 @@
 package koreatech.cse.service;
 
 import koreatech.cse.domain.rest.Festival;
+import koreatech.cse.domain.rest.Path;
+import koreatech.cse.domain.rest.Weather;
 import org.json.simple.JSONArray;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,65 +14,30 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+
+import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URLDecoder;
+import java.net.*;
 import java.util.*;
 
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 @Service
-public class festivalService {
+public class FestivalService {
 
-    public String findLonLatByAddr(String txt) {
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.add("Content-Type", "application/json;charset=UTF-8");
-        headers.add("Authorization", "KakaoAK a4330178b5106aa974e333858b635131");
-
-        HttpEntity request = new HttpEntity(headers);
-        ResponseEntity<String> response = null;
-        RestTemplate rest = new RestTemplate();
-
-        URI url = UriComponentsBuilder.fromUriString("https://dapi.kakao.com/v2/local/search/address?")
-                .queryParam("query", txt)
-                .build()
-                .toUri();
-        String result = "";
-        try {
-            response = rest.exchange(url.toURL().toString(), HttpMethod.GET, request, String.class);
-        } catch (MalformedURLException e) {
-            System.out.println(e);
-        }
-
-        result = response.getBody();
-
-        try {
-            System.out.println(url.toURL().toString());
-        } catch (Exception e) {};
-        System.out.println(result);
-        String lon="", lat="";
-
-        for(int i=result.indexOf("y")+4; result.charAt(i)!='"';i++) {
-            lat += result.charAt(i);
-        }
-        for(int i=result.indexOf("x")+4; result.charAt(i)!='"';i++) {
-            lon += result.charAt(i);
-        }
-
-        String dest = lat+","+lon;
-        return dest;
-    }
+    @Inject
+    WeatherService weatherService;
 
     //축제 좌표 리스트 반환 함수
-    public ArrayList<String> findFestivalByDate(String eventStartDate){
-        ArrayList<String> Address= new ArrayList<String>();
+    public ArrayList<Festival> findFestivalByDate(String eventStartDate){
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/xml; charset=UTF-8");
-
-        HttpEntity request = new HttpEntity(headers);
-        ResponseEntity<String> response = null;
-        RestTemplate rest = new RestTemplate();
+        ArrayList<Festival> festivals = new ArrayList<Festival>();
 
         String serviceKey = "l%2FXKLcW5Jj0okWYGuXHBNNOAAmPof7oCXymC6dSQupnglgZ6ePTSmrNu5y3g7NuA6QsToKdDZuL38FkjoPgZyw%3D%3D";
         String serviceKey_Decoder = null;
@@ -80,149 +47,156 @@ public class festivalService {
             e.printStackTrace();
         }
 
-        URI url = UriComponentsBuilder.fromUriString("http://api.visitkorea.or.kr/openapi/service/rest/KorService/searchFestival?ServiceKey="+serviceKey_Decoder+"&arrange=A&listYN=Y&pageNo=1&numOfRows=10&MobileOS=ETC&MobileApp=AppTest")
-                .queryParam("eventStartDate", eventStartDate)
-                .build()
-                .toUri();
-        String result = "";
+        URL url = null;
+        URLConnection connection = null;
+        Document doc = null;
         try {
-            response = rest.exchange(url.toURL().toString(), HttpMethod.GET, request, String.class);
+            url = new URL("http://api.visitkorea.or.kr/openapi/service/rest/KorService/searchFestival?ServiceKey=" + serviceKey_Decoder
+                    + "&arrange=A&listYN=Y&pageNo=1&numOfRows=10&MobileOS=ETC&MobileApp=AppTest"
+                    + "&eventStartDate=" + eventStartDate);
+            connection = url.openConnection();
+            doc = parseXML(connection.getInputStream());
+        } catch (Exception e) {}
 
-        } catch (MalformedURLException e) {
-            System.out.println(e);
-        }
+        NodeList descNodes = doc.getElementsByTagName("item");
 
-        result = response.getBody();
+        for(int i=0; i<descNodes.getLength();i++){
+            Festival festival = new Festival();
+            for(Node node = descNodes.item(i).getFirstChild(); node!=null; node=node.getNextSibling()){ //첫번째 자식을 시작으로 마지막까지 다음 형제를 실행
+                String tagName = node.getNodeName();
 
-        try {
-            System.out.println(url.toURL().toString());
-        } catch (Exception e) {};
-        System.out.println(result);
-
-
-        while (result.length()>0) {
-            if(result.indexOf("<item>") == -1) break;
-            String pointx = "", pointy = "";
-            for (int i = result.indexOf("<mapx>") + 6; i < result.indexOf("</mapx>"); i++) {
-                    pointx += result.charAt(i);
+                if(tagName.equals("addr1")){
+                    System.out.println("addr1 : " + node.getTextContent());
+                    festival.setDestAddress(node.getTextContent());
+                }else if(tagName.equals("addr2")){
+                    festival.setDestAddress(festival.getDestAddress() + node.getTextContent());
+                }else if(tagName.equals("firstimage")){
+                    festival.setImgUrl(node.getTextContent());
+                } else if(tagName.equals("mapx")){
+                    festival.setMapX(node.getTextContent());
+                } else if(tagName.equals("mapy")){
+                    festival.setMapY(node.getTextContent());
+                    festival.setDestLocation( festival.getMapY()+","+festival.getMapX());
+                    System.out.println(festival.getDestLocation());
+                } else if(tagName.equals("title")) {
+                    System.out.println("title : " + node.getTextContent());
+                    festival.setName(node.getTextContent());
+                }
             }
-            for (int i = result.indexOf("<mapy>") + 6; i < result.indexOf("</mapy>"); i++) {
-                    pointy += result.charAt(i);
+            System.out.println("===============");
+            festivals.add(festival);
+        }
+        return festivals;
+    }
+
+
+    public ArrayList<Festival> removeBadWeather(ArrayList<Festival> festivals) {
+
+        for(int i=0; i<festivals.size(); i++) {
+            String lat = festivals.get(i).getMapY();
+            String lon = festivals.get(i).getMapX();
+            Weather weather = new Weather();
+            weather.setLat(lat);
+            weather.setLon(lon);
+            weatherService.loadWeatherByAxis(weather);
+
+            if ( weather.getSky().equals("비") ) {
+                festivals.get(i).setRecommend("비가 와서 추천드리지 않아요");
+            } else if(weather.getSky().equals("눈")) {
+                festivals.get(i).setRecommend("눈이 와서 추천드리지 않아요");
+            } else if(weather.getSky().equals("비 또는 눈")) {
+                festivals.get(i).setRecommend("비 또는 눈이 와서 추천드리지 않아요");
+            } else {
+                if (weather.getDustGrade().equals("나쁨") || weather.getDustGrade().equals("매우나쁨")) {
+                    festivals.get(i).setRecommend("미세먼지로 외부활동을 추천하지는 않아요");
+                } else {
+                    festivals.get(i).setRecommend("추천 관광지");
+                }
             }
-            String addr = pointy + "," + pointx;
-            Address.add(addr);
 
-            int start = result.indexOf("</item>")+6;
-            int end = result.length()-1;
-
-            result = result.substring(start,end);
+            festivals.get(i).setSky(weather.getSky());
+            festivals.get(i).setDustValue(weather.getDustValue());
+            festivals.get(i).setDustGrade(weather.getDustGrade());
         }
-        return Address ;
+
+        return festivals;
+    }
+    
+    public void sortByDistance(ArrayList<Festival> festivals,String origin, String sortType) {
+        /** 소요시간 및 정보 가져오기 **/
+        for(int i=0; i<festivals.size(); i++) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json;charset=UTF-8");
+            HttpEntity request = new HttpEntity(headers);
+            ResponseEntity<String> response = null;
+            RestTemplate rest = new RestTemplate();
+            URI url = UriComponentsBuilder.fromUriString("https://maps.googleapis.com/maps/api/directions/json?key=AIzaSyAY8nrL5q2WEN5L1mr6nyeC1NwJ5Va0W2Q&mode=transit")
+                    .queryParam("destination", festivals.get(i).getDestLocation())
+                    .queryParam("origin", origin)
+                    .build()
+                    .toUri();
+
+            String result = "";
+            try {
+                response = rest.exchange(url.toURL().toString(), HttpMethod.GET, request, String.class);
+            } catch (MalformedURLException e) {
+                System.out.println(e);
+            }
+            result = response.getBody(); //result에 결과 다 넣기
+            try {
+                System.out.println(url.toURL().toString());
+            } catch (Exception e) {
+            }
+            ;
+
+            JSONParser jsonParser = new JSONParser();
+            JSONObject jsonObj = null;
+            try {
+                jsonObj = (JSONObject) jsonParser.parse(result);
+            } catch (Exception e) {
+            }
+
+            JSONArray subObj = (JSONArray) jsonObj.get("routes");
+            JSONObject subObj1 = (JSONObject) subObj.get(0);
+
+            JSONArray legsObj = (JSONArray) subObj1.get("legs");
+            JSONObject pathObj = (JSONObject) legsObj.get(0);
+            JSONObject durationObj = (JSONObject) pathObj.get("duration");
+            Long duration = (Long) durationObj.get("value");
+            festivals.get(i).setDuration(duration);
+
+            JSONObject arrivalTimeObj = (JSONObject) pathObj.get("arrival_time");
+            Long arrivalTime = (Long) arrivalTimeObj.get("value");
+            festivals.get(i).setArrivalTime(arrivalTime);
+
+            JSONObject departureTimeObj = (JSONObject) pathObj.get("departure_time");
+            String departureTime = (String) departureTimeObj.get("text");
+            festivals.get(i).setDepartureTime(departureTime);
+
+            festivals.get(i).setSortType(sortType);
+        }
+
+        /** 소요시간 소팅 **/
+        Collections.sort(festivals);
     }
 
-    //json파일에서 소요시간 찾기
-    public Long findPathTimeByAddr(String destinationPoint){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json;charset=UTF-8");
-        HttpEntity request = new HttpEntity(headers);
-        ResponseEntity<String> response = null;
-        RestTemplate rest = new RestTemplate();
-        URI url = UriComponentsBuilder.fromUriString("https://maps.googleapis.com/maps/api/directions/json?origin=36.765371699999996,127.28594249999999&mode=transit")
-                .queryParam("destination", destinationPoint)
-                .build()
-                .toUri();
-        String result = "";
-        try {
-            response = rest.exchange(url.toURL().toString(),HttpMethod.GET, request, String.class);
-        } catch (MalformedURLException e) {
-            System.out.println(e);
+    private Document parseXML(InputStream stream) throws Exception{
+
+        DocumentBuilderFactory objDocumentBuilderFactory = null;
+        DocumentBuilder objDocumentBuilder = null;
+        Document doc = null;
+
+        try{
+
+            objDocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+            objDocumentBuilder = objDocumentBuilderFactory.newDocumentBuilder();
+
+            doc = objDocumentBuilder.parse(stream);
+
+        }catch(Exception ex){
+            throw ex;
         }
-        result = response.getBody(); //result에 결과 다 넣기
-        try {
-            System.out.println(url.toURL().toString());
-        } catch (Exception e) {};
 
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObj = null;
-        try {
-            jsonObj = (JSONObject) jsonParser.parse(result);
-        } catch(Exception e) {}
-
-        JSONArray subObj = (JSONArray) jsonObj.get("routes");
-        JSONObject subObj1= (JSONObject) subObj.get(0);
-        JSONArray subObj2 = (JSONArray) subObj1.get("legs");
-        JSONObject subObj3= (JSONObject) subObj2.get(0);
-        JSONObject subObj4= (JSONObject) subObj3.get("duration");
-        Long subObj5= (Long) subObj4.get("value");
-
-       // System.out.println("소요시간 : "+ subObj5);
-        return subObj5;
-    }
-
-    //json파일 string로 반환하기
-    public String findPathByTime(String destinationPoint){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json;charset=UTF-8");
-        HttpEntity request = new HttpEntity(headers);
-        ResponseEntity<String> response = null;
-        RestTemplate rest = new RestTemplate();
-        URI url = UriComponentsBuilder.fromUriString("https://maps.googleapis.com/maps/api/directions/json?origin=36.765371699999996,127.28594249999999&mode=transit")
-                .queryParam("destination", destinationPoint)
-                .build()
-                .toUri();
-        String result = "";
-        try {
-            response = rest.exchange(url.toURL().toString(),HttpMethod.GET, request, String.class);
-        } catch (MalformedURLException e) {
-            System.out.println(e);
-        }
-        result = response.getBody(); //result에 결과 다 넣기
-        try {
-            System.out.println(url.toURL().toString());
-        } catch (Exception e) {};
-        return result;
-    }
-
-    //소요시간 짧은거 축제 이름 알아내기
-    public String findNameByminNum(int minNum ,String eventStartDate){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/xml; charset=UTF-8");
-        HttpEntity request = new HttpEntity(headers);
-        ResponseEntity<String> response = null;
-        RestTemplate rest = new RestTemplate();
-
-        String serviceKey = "l%2FXKLcW5Jj0okWYGuXHBNNOAAmPof7oCXymC6dSQupnglgZ6ePTSmrNu5y3g7NuA6QsToKdDZuL38FkjoPgZyw%3D%3D";
-        String serviceKey_Decoder = null;
-        try {
-            serviceKey_Decoder = URLDecoder.decode(serviceKey.toString(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        URI url = UriComponentsBuilder.fromUriString("http://api.visitkorea.or.kr/openapi/service/rest/KorService/searchFestival?ServiceKey="+serviceKey_Decoder+"&arrange=A&listYN=Y&pageNo=1&numOfRows=10&MobileOS=ETC&MobileApp=AppTest")
-                .queryParam("eventStartDate", eventStartDate)
-                .build()
-                .toUri();
-        String result = "";
-        try {
-            response = rest.exchange(url.toURL().toString(), HttpMethod.GET, request, String.class);
-
-        } catch (MalformedURLException e) {
-            System.out.println(e);
-        }
-        result = response.getBody();
-        try {
-            System.out.println(url.toURL().toString());
-        } catch (Exception e) {};
-
-        for(int i = 0; i < minNum; i++){
-            int start = result.indexOf("</item>")+6;
-            int end = result.length()-1;
-            result = result.substring(start,end);
-        }
-        String festivalName="";
-        for (int i = result.indexOf("<title>") + 7; i < result.indexOf("</title>"); i++) {
-            festivalName += result.charAt(i);
-        }
-        return festivalName ;
+        return doc;
     }
 }
