@@ -1,8 +1,6 @@
 package koreatech.cse.service;
 
-import koreatech.cse.domain.rest.Festival;
-import koreatech.cse.domain.rest.Path;
-import koreatech.cse.domain.rest.Weather;
+import koreatech.cse.domain.rest.*;
 import org.json.simple.JSONArray;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.util.*;
 
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -35,7 +32,7 @@ public class FestivalService {
     WeatherService weatherService;
 
     //축제 좌표 리스트 반환 함수
-    public ArrayList<Festival> findFestivalByDate(String eventStartDate){
+    public ArrayList<Festival> findFestivalByDate(String eventStartDate, int festivalTotal){
 
         ArrayList<Festival> festivals = new ArrayList<Festival>();
 
@@ -59,8 +56,10 @@ public class FestivalService {
         } catch (Exception e) {}
 
         NodeList descNodes = doc.getElementsByTagName("item");
+        if ( festivalTotal > descNodes.getLength() ) festivalTotal = descNodes.getLength();
 
-        for(int i=0; i<descNodes.getLength();i++){
+        for(int i=0; i < festivalTotal; i++){
+        //for(int i=0; i<descNodes.getLength();i++){
             Festival festival = new Festival();
             for(Node node = descNodes.item(i).getFirstChild(); node!=null; node=node.getNextSibling()){ //첫번째 자식을 시작으로 마지막까지 다음 형제를 실행
                 String tagName = node.getNodeName();
@@ -86,6 +85,7 @@ public class FestivalService {
             System.out.println("===============");
             festivals.add(festival);
         }
+
         return festivals;
     }
 
@@ -93,38 +93,55 @@ public class FestivalService {
     public ArrayList<Festival> removeBadWeather(ArrayList<Festival> festivals) {
 
         for(int i=0; i<festivals.size(); i++) {
+        //for(int i=0; i<festivalTotal; i++) {
             String lat = festivals.get(i).getMapY();
             String lon = festivals.get(i).getMapX();
             Weather weather = new Weather();
-            weather.setLat(lat);
-            weather.setLon(lon);
-            weatherService.loadWeatherByAxis(weather);
 
-            if ( weather.getSky().equals("비") ) {
-                festivals.get(i).setRecommend("비가 와서 추천드리지 않아요");
-            } else if(weather.getSky().equals("눈")) {
-                festivals.get(i).setRecommend("눈이 와서 추천드리지 않아요");
-            } else if(weather.getSky().equals("비 또는 눈")) {
-                festivals.get(i).setRecommend("비 또는 눈이 와서 추천드리지 않아요");
-            } else {
-                if (weather.getDustGrade().equals("나쁨") || weather.getDustGrade().equals("매우나쁨")) {
-                    festivals.get(i).setRecommend("미세먼지로 외부활동을 추천하지는 않아요");
-                } else {
-                    festivals.get(i).setRecommend("추천 관광지");
-                }
+            try {
+                String srchAddr = festivals.get(i).getDestAddress();
+                String encodedUrl = URLEncoder.encode(srchAddr, "UTF-8");
+
+                weather.setLocation(srchAddr.replaceAll(" ", ""));
+                weatherService.loadWeatherByArea(weather);
+            } catch (Exception e) {
             }
+            //weatherService.loadWeatherByAxis(weather);
+            if (weather != null) {
+                if (weather.getSky().equals("비")) {
+                    //festivals.get(i).setRecommend("비가 와서 추천드리지 않아요");
+                    festivals.get(i).setRecommend("비추천");
+                } else if (weather.getSky().equals("눈")) {
+                    //festivals.get(i).setRecommend("눈이 와서 추천드리지 않아요");
+                    festivals.get(i).setRecommend("비추천");
+                } else if (weather.getSky().equals("비 또는 눈")) {
+                    //festivals.get(i).setRecommend("비 또는 눈이 와서 추천드리지 않아요");
+                    festivals.get(i).setRecommend("비추천");
+                } else {
+                    if (weather.getDustGrade().equals("나쁨") || weather.getDustGrade().equals("매우나쁨")) {
+                        //festivals.get(i).setRecommend("미세먼지로 외부활동을 추천하지는 않아요");
+                        festivals.get(i).setRecommend("비추천");
+                    } else {
+                        festivals.get(i).setRecommend("추천");
+                    }
+                }
 
             festivals.get(i).setSky(weather.getSky());
             festivals.get(i).setDustValue(weather.getDustValue());
             festivals.get(i).setDustGrade(weather.getDustGrade());
+            } else {
+                festivals.remove(i);
+            }
         }
 
         return festivals;
     }
-    
+
     public void sortByDistance(ArrayList<Festival> festivals,String origin, String sortType) {
         /** 소요시간 및 정보 가져오기 **/
         for(int i=0; i<festivals.size(); i++) {
+        //for(int i=0; i<festivalTotal; i++) {
+
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Type", "application/json;charset=UTF-8");
             HttpEntity request = new HttpEntity(headers);
@@ -147,7 +164,8 @@ public class FestivalService {
                 System.out.println(url.toURL().toString());
             } catch (Exception e) {
             }
-            ;
+
+            Festival festival = new Festival();
 
             JSONParser jsonParser = new JSONParser();
             JSONObject jsonObj = null;
@@ -159,25 +177,184 @@ public class FestivalService {
             JSONArray subObj = (JSONArray) jsonObj.get("routes");
             JSONObject subObj1 = (JSONObject) subObj.get(0);
 
-            JSONArray legsObj = (JSONArray) subObj1.get("legs");
-            JSONObject pathObj = (JSONObject) legsObj.get(0);
-            JSONObject durationObj = (JSONObject) pathObj.get("duration");
-            Long duration = (Long) durationObj.get("value");
-            festivals.get(i).setDuration(duration);
+            JSONArray legsArray = (JSONArray) subObj1.get("legs");
+            JSONObject legsObj = (JSONObject) legsArray.get(0);
 
-            JSONObject arrivalTimeObj = (JSONObject) pathObj.get("arrival_time");
-            Long arrivalTime = (Long) arrivalTimeObj.get("value");
-            festivals.get(i).setArrivalTime(arrivalTime);
+            /** Legs에 설정 */
+            JSONObject arrivalObj = (JSONObject) legsObj.get("arrival_time");
+            String arrivalTime = (String) arrivalObj.get("text");
+            long arrivalTimeValue = (Long) arrivalObj.get("value");
+            JSONObject arrivalLocObj = (JSONObject) legsObj.get("end_location");
+            double arrivalY = (Double) arrivalLocObj.get("lat");
+            double arrivalX = (Double) arrivalLocObj.get("lng");
+            String arrivalAddr = (String) legsObj.get("end_address");
 
-            JSONObject departureTimeObj = (JSONObject) pathObj.get("departure_time");
-            String departureTime = (String) departureTimeObj.get("text");
-            festivals.get(i).setDepartureTime(departureTime);
+            JSONObject departureObj = (JSONObject) legsObj.get("departure_time");
+            String departureTime = (String) departureObj.get("text");
+            long departureTimeValue = (Long) departureObj.get("value");
+            JSONObject departureLocObj = (JSONObject) legsObj.get("start_location");
+            double departureY = (Double) departureLocObj.get("lat");
+            double departureX = (Double) departureLocObj.get("lng");
+            String departureAddr = (String) legsObj.get("start_address");
+
+            JSONObject distanceObj = (JSONObject) legsObj.get("distance");
+            String distance = (String) distanceObj.get("text");
+            long distanceValue = (Long) distanceObj.get("value");
+            JSONObject durationObj = (JSONObject) legsObj.get("duration");
+            String duration = (String) durationObj.get("text");
+            long durationValue = (Long) distanceObj.get("value");
+
+            Legs legs = new Legs();
+            Point2 departurePoint = new Point2();
+            Point2 arrivalPoint = new Point2();
+            departurePoint.setAll(departureY, departureX, departureAddr, departureTime, departureTimeValue);
+            arrivalPoint.setAll(arrivalY, arrivalX, arrivalAddr, arrivalTime, arrivalTimeValue);
+
+            legs.setAll(departurePoint, arrivalPoint, distance, duration, distanceValue, durationValue);
+
+            /** Path에 설정 - steps[0]*/
+            JSONArray pathArray = (JSONArray) legsObj.get("steps");
+            for(int j=0; j<pathArray.size(); j++) {
+                Point start = new Point();
+                JSONObject pathObj = (JSONObject) pathArray.get(j);
+                JSONObject startObj = (JSONObject) pathObj.get("start_location");
+                double startLat = (Double) startObj.get("lat");
+                double startLon = (Double) startObj.get("lng");
+                start.setLocation(startLat, startLon);
+
+                Point end = new Point();
+                JSONObject endObj = (JSONObject) pathObj.get("end_location");
+                double endLat = (Double) endObj.get("lat");
+                double endLon = (Double) endObj.get("lng");
+                end.setLocation(endLat, endLon);
+
+                JSONObject distanceObj2 = (JSONObject) pathObj.get("distance");
+                String distance2 = (String) distanceObj2.get("text");
+                JSONObject durationObj2 = (JSONObject) pathObj.get("duration");
+                String duration2 = (String) durationObj2.get("text");
+                String instructions = (String) pathObj.get("html_instructions");
+
+                String travelMode = (String) pathObj.get("travel_mode");
+                Travel way;
+                if (travelMode.equals("WALKING")) {
+                    way = new Steps();
+                    JSONArray walkingArray = (JSONArray) pathObj.get("steps");
+                    JSONObject walkingObj = (JSONObject) walkingArray.get(0);
+
+                    Point start2 = new Point();
+                    JSONObject startObj2 = (JSONObject) walkingObj.get("start_location");
+                    double startLat2 = (Double) startObj2.get("lat");
+                    double startLon2 = (Double) startObj2.get("lng");
+                    start2.setLocation(startLat2, startLon2);
+
+                    Point end2 = new Point();
+                    JSONObject endObj2 = (JSONObject) walkingObj.get("end_location");
+                    double endLat2 = (Double) endObj2.get("lat");
+                    double endLon2 = (Double) endObj2.get("lng");
+                    end2.setLocation(endLat2, endLon2);
+
+                    String distance3 = (String) ((JSONObject) walkingObj.get("distance")).get("text");
+                    String duration3 = (String) ((JSONObject) walkingObj.get("duration")).get("text");
+
+                    ((Steps) way).setAll(start2, end2, distance3, duration3);
+                }
+                else {
+                    way = new Transit();
+
+                    JSONObject transitObj = (JSONObject) pathObj.get("transit_details");
+
+                    Point2 start2 = new Point2();
+                    JSONObject startObj2 = (JSONObject) transitObj.get("departure_stop");
+                    JSONObject startLocObj = (JSONObject) startObj2.get("location");
+                    double startLat2 = (Double) startLocObj.get("lat");
+                    double startLon2 = (Double) startLocObj.get("lng");
+                    String startName = (String) startObj2.get("name");
+                    //start2.setName(startName);
+
+                    JSONObject startTimeObj = (JSONObject) transitObj.get("departure_time");
+                    String startTime = (String) startTimeObj.get("text");
+                    long startTimeValue = (Long) startTimeObj.get("value");
+
+                    start2.setAll(startLat2, startLon2, startName, startTime, startTimeValue);
+                    
+                    Point2 end2 = new Point2();
+                    JSONObject endObj2 = (JSONObject) transitObj.get("arrival_stop");
+                    JSONObject endLocObj = (JSONObject) endObj2.get("location");
+                    double endLat2 = (Double) endLocObj.get("lat");
+                    double endLon2 = (Double) endLocObj.get("lng");
+                    String endName = (String) endObj2.get("name");
+                    //end2.setName(endName);
+
+                    JSONObject endTimeObj = (JSONObject) transitObj.get("arrival_time");
+                    String endTime = (String) endTimeObj.get("text");
+
+                    long endTimeValue = (Long) endTimeObj.get("value");
+                    long durationValue2 = endTimeValue - startTimeValue;
+                    long hour = durationValue2 / 3600;
+                    long min = (durationValue2%3600) / 60;
+                    long sec = (durationValue2%3600) % 60;
+                    if (sec >= 30) min += 1;
+                    String duration3 =  ((hour > 0 && min > 0) ? hour+"시간 " : (hour > 0) ? hour+"시간" : "") + ((min > 0) ? min+"분" : "") ;
+                    end2.setAll(endLat2, endLon2, endName, endTime, endTimeValue);
+
+                    JSONObject lineObj = (JSONObject) transitObj.get("line");
+                    String transitName = (String) lineObj.get("name");
+
+                    String transitShortName = null;
+                    if ( lineObj.get("short_name") != null ) {
+                        transitShortName = (String) lineObj.get("short_name");
+                    }
+
+                    ((Transit) way).setStart2(start2);
+                    ((Transit) way).setEnd2(end2);
+                    ((Transit) way).setDuration(duration3);
+                    ((Transit) way).setTransitName(transitName);
+                    ((Transit) way).setTransitShortName(transitShortName);
+
+                }
+                Path path = new Path();
+                path.setAll(start, end, distance2, duration2, instructions, travelMode, way);
+                legs.getPaths().add(path);
+                if ( legs.getPaths().get(j).getWay().getStart() == null )
+                    ((Transit) legs.getPaths().get(j).getWay()).getStart2().setLocation(start.getLat(), start.getLon());
+                if ( legs.getPaths().get(j).getWay().getEnd() == null )
+                    ((Transit) legs.getPaths().get(j).getWay()).getEnd2().setLocation(end.getLat(), end.getLon());
+            }
 
             festivals.get(i).setSortType(sortType);
+            festivals.get(i).setLegs(legs);
         }
 
         /** 소요시간 소팅 **/
         Collections.sort(festivals);
+    }
+
+    public ArrayList<Integer> indexSortByWeather(ArrayList<Festival> festivals) {
+        ArrayList<Integer> idxArray = new ArrayList<Integer>();
+        String[] sky = {"맑음", "구름조금", "구름많음", "흐림"};
+
+        for(int i=0; i<sky.length; i++) {
+            for (int j = 0; j < festivals.size(); j++) {
+                Festival f = festivals.get(j);
+                String s = f.getSky();
+                String dustValue = festivals.get(j).getDustValue();
+                String recommend = festivals.get(j).getRecommend();
+
+                if (recommend.equals("비추천")) continue;
+                if ( s.equals(sky[i]) ) idxArray.add(j);
+            }
+        }
+        int size = idxArray.size();
+        for(int i = 0; i < festivals.size(); i++) {
+            boolean check = false;
+            for (int j = 0; j < size; j++) {
+                if ( i == idxArray.get(j) ) check = true;
+            }
+            if (check == false)
+                idxArray.add(i);
+        }
+
+        return idxArray;
     }
 
     private Document parseXML(InputStream stream) throws Exception{

@@ -31,7 +31,7 @@ public class MovieRestController {
         if(targetDt.equals(""))
             targetDt="20170101";
         try {
-            movies = movieService.readUrl(targetDt, wideArea, "Y", "K");
+          //  movies = movieService.readUrl(targetDt, wideArea, "Y", "K");
         } catch (Exception e) {
             e.printStackTrace();
         }
