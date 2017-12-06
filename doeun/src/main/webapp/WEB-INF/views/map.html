@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html  charset="UTF-8">
+<head>
+    <title>Google Map Test</title>
+
+
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+    <link href="./css/nheo.css" rel="stylesheet">
+    <script type="text/javascript" src="./js/jquery-1.12.1.js"></script>
+    <script type="text/javascript" src="./js/nheo.js"></script>
+
+    <script
+            src="http://maps.googleapis.com/maps/api/js">
+    </script>
+    <!-- <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6Ru1bMnTyQ1hesbxnucSjmP4Im30RE&callback=initialize">
+    </script>
+	-->
+
+    <script>
+
+        var directionsDisplay;
+        var directionsService = new google.maps.DirectionsService();
+        var src
+        var dest
+        var marker
+
+        function initialize()
+        {
+            directionsDisplay = new google.maps.DirectionsRenderer();
+
+            var mapProp = {
+                //center: 서울
+                center: new google.maps.LatLng(37.566535,126.9779692),
+                zoom:8,
+                panControl:true,
+                zoomControl:true,
+                mapTypeControl:true,
+                scaleControl:true,
+                streetViewControl:true,
+                overviewMapControl:true,
+                rotateControl:true,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+
+            map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+            directionsDisplay.setMap(map);
+            directionsDisplay.setPanel(document.getElementById("directionsPannel"));
+            marker = new google.maps.Marker();
+            //src = new google.maps.LatLng(37.5117887, 126.8395951) // 신정도일하이빌
+            src = new google.maps.LatLng(35.6894875, 139.6917064) // 도쿄
+
+        }
+
+        google.maps.event.addDomListener(window, 'load', initialize);
+
+        function moveLocation(dest, title) {
+
+            map.panTo(dest);
+            unsetMarker(marker);
+            setMarker(dest, title);
+        }
+
+        function setMarker(dest, titlename) {
+            marker = new google.maps.Marker({
+                position: dest,
+                map: map,
+                title: titlename
+            });
+            marker.setMap(map)
+        }
+        function unsetMarker(marker) {
+            marker.setMap(null)
+        }
+        function procMapControl(response) {
+            dest = new google.maps.LatLng(response.results[0].geometry.location.lat,response.results[0].geometry.location.lng);
+            marker = new google.maps.Marker({
+                position: dest,
+                map: map,
+                title: response.results[0].formatted_address
+            });
+            moveLocation(dest);
+            //var boundsk  new google.maps.LatLngBounds();
+            //map.fitBounds(bounds);
+            switch(response.results[0].address_components.length) {
+                case 1: map.setZoom(9); break;
+                case 2: map.setZoom(9); break;
+                case 3: map.setZoom(10); break;
+                case 4: map.setZoom(12); break;
+                case 5: map.setZoom(14); break;
+                case 6: map.setZoom(16); break;
+                default: map.setZoom(8); break;
+
+            }
+            calcRoute(src, dest);
+            directionsDisplay.setMap(map);
+        }
+        function calcRoute(src, dest) {
+            var selectedMode = document.getElementById("mode").value;
+            var request = {
+                origin: src,
+                destination: dest,
+                // Note that Javascript allows us to access the constant
+                // using square brackets and a string value as its
+                // "property."
+                travelMode: google.maps.TravelMode[selectedMode]
+            };
+            directionsService.route(request, function(response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsDisplay.setDirections(response);
+                }
+            });
+        }
+
+    </script>
+</head>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <nav>
+            <ul class="nav nav-pills pull-right">
+                <li role="presentation" ><a href="main">Home</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="jumbotron">
+        <form class="form-nheo">
+            <label for="Address" class="sr-only">Where to go ?</label>
+            <input type="name" name="address" id="address" class="form-control" placeholder="Where to go ?" required autofocus>
+
+            <button id="btnnheo" class="btn btn-lg btn-primary btn-block" type="button">Submit</button>
+        </form>
+    </div>
+    <div>
+        <strong>Travel Type </strong>
+        <select id="mode" onchange="calcRoute();">
+            <option value="DRIVING">Driving</option>
+            <option value="WALKING">Walking</option>
+            <option value="BICYCLING">Bicycling</option>
+            <option value="TRANSIT">Transit</option>
+        </select>
+    </div>
+
+    <div id="googleMap" style="width:100%;height:380px;"></div>
+    <div id="directionsPannel" style="width:30%;height:100%;"></div>
+</div>
+</body>
+
+
+
+</html>

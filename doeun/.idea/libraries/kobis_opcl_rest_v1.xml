@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="kobis-opcl-rest-v1">
+    <CLASSES>
+      <root url="file://$USER_HOME$/Downloads/kobis-opcl-rest-v1.0" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/Downloads/kobis-opcl-rest-v1.0" />
+      <root url="jar://$USER_HOME$/Downloads/kobis-opcl-rest-v1.0.jar!/" />
+    </SOURCES>
+  </library>
+</component>
