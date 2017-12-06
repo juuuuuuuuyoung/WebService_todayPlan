@@ -3,6 +3,8 @@ package koreatech.cse.domain;
 import org.springframework.security.core.GrantedAuthority;
 
 public class Authority implements GrantedAuthority {
+    // db에서 authorities와 같음
+
 
     private int id;
     private int userId;

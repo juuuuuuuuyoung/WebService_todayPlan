@@ -8,6 +8,7 @@ public class Movie {
     private String movieCd;
     private String movieNm;
     private String openDt;
+    private String wideArea;
 
     public void setId(int id) {
         this.id = id;
@@ -65,15 +66,25 @@ public class Movie {
         return targetDt;
     }
 
+    public String getWideArea() {
+        return wideArea;
+    }
+
+    public void setWideArea(String wideArea) {
+        this.wideArea = wideArea;
+    }
+
     @Override
     public String toString() {
         return "Movie{" +
                 "id=" + id +
+                ", targetDt='" + targetDt + '\'' +
                 ", rnum='" + rnum + '\'' +
                 ", rank='" + rank + '\'' +
                 ", movieCd='" + movieCd + '\'' +
                 ", movieNm='" + movieNm + '\'' +
                 ", openDt='" + openDt + '\'' +
+                ", wideAreaCd='" + wideArea + '\'' +
                 '}';
     }
 }

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 
 @Controller
-
 @RequestMapping("/user")
 public class UserController {
     @Inject
@@ -26,18 +25,35 @@ public class UserController {
     public String signup(Model model) {
         User user = new User();
         model.addAttribute("user", user);
+
+        /* TODO 18-2
+            User loginUser = User.current();\
+            if(loginUser.getName().equals("hong"))
+
+         */
+
         return "signup";
     }
+
+    /* TODO 원래는 이렇게 해야했음. 18-1
+    @RequestMapping("/signup")
+    public String signup(Model model, HttpSession seesion) {
+        User user = new User();
+        model.addAttribute("user", user);
+        return "signup";
+    }
+
+     */
 
     @Transactional
     @RequestMapping(value="/signup", method= RequestMethod.POST)
     public String signup(@ModelAttribute User user) {
         userService.signup(user);
-        return "redirect:/user/list";
+        return "redirect:/user/userlist";
     }
 
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/userlist", method = RequestMethod.GET)
     public String list(Model model, @RequestParam(required=false) String name, @RequestParam(required=false) String email, @RequestParam(required=false) String order) {
         Searchable searchable = new Searchable();
         searchable.setName(name);
@@ -45,7 +61,7 @@ public class UserController {
         searchable.setOrderParam(order);
         //model.addAttribute("users", userMapper.findByProvider(searchable));
         model.addAttribute("users", userMapper.findByScript(searchable));
-        return "list";
+        return "userlist";
     }
 
 
@@ -55,19 +71,17 @@ public class UserController {
         return "edit";
     }
 
-    @RequestMapping(value = "/edit", method = RequestMethod.POST)
+    @RequestMapping(value="/edit", method= RequestMethod.POST)
     public String edit(@ModelAttribute User user) {
-        System.out.println("user = " + user);
         userMapper.update(user);
+        return "redirect:/user/userlist";
 
-        return "redirect:/user/list";
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    @RequestMapping(value="/delete", method= RequestMethod.GET)
     public String delete(@RequestParam int id) {
         userMapper.delete(id);
-        return "redirect:/user/list";
+        return "redirect:/user/userlist";
     }
 
 
@@ -77,16 +91,55 @@ public class UserController {
     }
 
     @RequestMapping(value="/signinSuccess")
+    @ResponseBody
     public String signinSuccess() {
         System.out.println("signin Success");
-        return "redirect:/";
+        return "signinSuccess";
     }
 
     @RequestMapping(value="/signinFailed")
+    @ResponseBody
     public String signinFailed() {
         System.out.println("signin Failed");
-        return "redirect:/";
+        return "signinFailed";
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @RequestMapping(value="/onlyUserByJava")
+    @ResponseBody
+    public String onlyUserByJava() {
+        System.out.println("User.current() = " + User.current());
+        return "user";
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @RequestMapping(value="/onlyAdminByJava")
+    @ResponseBody
+    public String onlyAdminByJava() {
+        System.out.println("User.current() = " + User.current());
+        return "admin";
     }
 
 
+    @RequestMapping(value="/onlyUserByXml")
+    @ResponseBody
+    public String onlyUserByXml() {
+        System.out.println("User.current() = " + User.current());
+        return "user";
+    }
+
+
+    @RequestMapping(value="/onlyAdminByXml")
+    @ResponseBody
+    public String onlyAdminByXml() {
+        System.out.println("User.current() = " + User.current());
+        return "admin";
+    }
+
+    @RequestMapping(value="/other")
+    @ResponseBody
+    public String other() {
+        System.out.println("User.current() = " + User.current());
+        return "other";
+    }
 }

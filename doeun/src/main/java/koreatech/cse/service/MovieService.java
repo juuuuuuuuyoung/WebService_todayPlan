@@ -1,85 +1,95 @@
 package koreatech.cse.service;
 
-import java.io.BufferedInputStream;
-import java.net.URL;
-import java.util.Scanner;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 import koreatech.cse.domain.rest.Movie;
+import koreatech.cse.repository.AreaMapper;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.inject.Inject;
 
 @Service
 public class MovieService {
 
-    // 사용자 입력을 받기 위한 메서드
-    // 메시지를 출력하고 사용자 입력을 받습니다.
-    private static String getUserInput(String message) {
-        Scanner sc = new Scanner(System.in);
+    @Inject
+    AreaMapper areaMapper;
 
-        System.out.print(message);
-        String input = sc.nextLine();
+    public ArrayList<Movie> readUrl(String targetDt, String wideArea, String multiMovieYn, String repNationCd){
 
-        return input;
-    }
-   public void readUrl(Movie movie){
+        System.out.println("@@@@@\n" + wideArea);
+        System.out.println("@@@@@\n" + multiMovieYn);
+        System.out.println("@@@@@\n" + repNationCd);
 
-        BufferedInputStream reader = null;
-        StringBuffer buffer = new StringBuffer();
+        /** 해당 지역 영화 정보 받아오기 */
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json;charset=UTF-8");
+
+        HttpEntity request = new HttpEntity(headers);
+        ResponseEntity<String> response = null;
+        RestTemplate rest = new RestTemplate();
+        URI url = UriComponentsBuilder.fromUriString("http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?")
+                .queryParam("key", "e02513baa82320de545208781377a3c1")
+                .queryParam("targetDt", targetDt)
+                .queryParam("wideArea", wideArea)
+                .queryParam("multiMovieYn", multiMovieYn)
+                .queryParam("repNationCd", repNationCd)
+                .build()
+                .toUri();
+
+
+        String result = "";
         try {
-            URL url = new URL(
-                    "http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/"
-                            + "searchDailyBoxOfficeList.json" // JSON 형식
-                            + "?key=e02513baa82320de545208781377a3c1" // 인증키
-                            + "&targetDt="+movie.getTargetDt()); //조회날짜
-            reader = new BufferedInputStream(url.openStream());
-            //StringBuffer buffer = new StringBuffer();
-            int i;
-            byte[] b = new byte[4096];
-            while( (i = reader.read(b)) != -1){
-                buffer.append(new String(b, 0, i));
-            }
-            if (reader != null)
-                reader.close();
-            //return buffer.toString();
-        } catch (Exception e){}
+            response = rest.exchange(url.toURL().toString(), HttpMethod.GET, request, String.class);
+        } catch (MalformedURLException e) {
+            System.out.println(e);
+        }
+
+        result = response.getBody();
+        System.out.println(result);
 
         JSONParser jsonparser = new JSONParser();
         JSONObject jsonobject = null;
         try {
-            jsonobject = (JSONObject) jsonparser.parse(buffer.toString());
+            jsonobject = (JSONObject) jsonparser.parse(result);
         }catch (Exception e){}
+
+        // 해당 날짜에 맞는 박스오피스 정보 받아오기
         JSONObject json =  (JSONObject) jsonobject.get("boxOfficeResult");
         JSONArray array = (JSONArray)json.get("dailyBoxOfficeList");
 
-        for(int i = 0 ; i < array.size(); i++){
 
+        ArrayList<Movie> movies = new ArrayList<Movie>();
+        targetDt = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        System.out.println(targetDt);
+        for(int i = 0 ; i < array.size(); i++) {
+            Movie tempMovie = new Movie();
             JSONObject entity = (JSONObject)array.get(i);
+
+            // 순번, 영화제목, 개봉일
             String rnum = (String) entity.get("rnum");
             String movieNm = (String) entity.get("movieNm");
             String openDt = (String) entity.get("openDt");
 
-            movie.setRnum(rnum);
-            movie.setMovieNm(movieNm);
-            movie.setOpenDt(openDt);
-
-            System.out.print(rnum + ":");
-            System.out.print(movieNm + " ");
-            System.out.println(openDt);
+            tempMovie.setRnum(rnum);
+            tempMovie.setMovieNm(movieNm);
+            tempMovie.setOpenDt(openDt);
+            tempMovie.setTargetDt(targetDt);
+            tempMovie.setWideArea(wideArea);
+            movies.add(tempMovie);
         }
 
-    }
-
-
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-        try {
-            new MovieService();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        return movies;
     }
 
 }
