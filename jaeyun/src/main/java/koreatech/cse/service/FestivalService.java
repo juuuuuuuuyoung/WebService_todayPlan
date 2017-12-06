@@ -126,9 +126,10 @@ public class FestivalService {
                     }
                 }
 
-            festivals.get(i).setSky(weather.getSky());
-            festivals.get(i).setDustValue(weather.getDustValue());
-            festivals.get(i).setDustGrade(weather.getDustGrade());
+            festivals.get(i).setWeather(weather);
+//            festivals.get(i).setSky(weather.getSky());
+//            festivals.get(i).setDustValue(weather.getDustValue());
+//            festivals.get(i).setDustGrade(weather.getDustGrade());
             } else {
                 festivals.remove(i);
             }
@@ -235,9 +236,9 @@ public class FestivalService {
                 String instructions = (String) pathObj.get("html_instructions");
 
                 String travelMode = (String) pathObj.get("travel_mode");
-                Travel way;
+                Travel travel;
                 if (travelMode.equals("WALKING")) {
-                    way = new Steps();
+                    travel = new Steps();
                     JSONArray walkingArray = (JSONArray) pathObj.get("steps");
                     JSONObject walkingObj = (JSONObject) walkingArray.get(0);
 
@@ -256,10 +257,10 @@ public class FestivalService {
                     String distance3 = (String) ((JSONObject) walkingObj.get("distance")).get("text");
                     String duration3 = (String) ((JSONObject) walkingObj.get("duration")).get("text");
 
-                    ((Steps) way).setAll(start2, end2, distance3, duration3);
+                    ((Steps) travel).setAll(start2, end2, distance3, duration3);
                 }
                 else {
-                    way = new Transit();
+                    travel = new Transit();
 
                     JSONObject transitObj = (JSONObject) pathObj.get("transit_details");
 
@@ -305,20 +306,14 @@ public class FestivalService {
                         transitShortName = (String) lineObj.get("short_name");
                     }
 
-                    ((Transit) way).setStart2(start2);
-                    ((Transit) way).setEnd2(end2);
-                    ((Transit) way).setDuration(duration3);
-                    ((Transit) way).setTransitName(transitName);
-                    ((Transit) way).setTransitShortName(transitShortName);
+
+                    ((Transit) travel).setAll(start2, end2, duration3, transitName, transitShortName);
 
                 }
                 Path path = new Path();
-                path.setAll(start, end, distance2, duration2, instructions, travelMode, way);
+                path.setAll(start, end, distance2, duration2, instructions, travelMode, travel);
                 legs.getPaths().add(path);
-                if ( legs.getPaths().get(j).getWay().getStart() == null )
-                    ((Transit) legs.getPaths().get(j).getWay()).getStart2().setLocation(start.getLat(), start.getLon());
-                if ( legs.getPaths().get(j).getWay().getEnd() == null )
-                    ((Transit) legs.getPaths().get(j).getWay()).getEnd2().setLocation(end.getLat(), end.getLon());
+                
             }
 
             festivals.get(i).setSortType(sortType);
@@ -336,8 +331,8 @@ public class FestivalService {
         for(int i=0; i<sky.length; i++) {
             for (int j = 0; j < festivals.size(); j++) {
                 Festival f = festivals.get(j);
-                String s = f.getSky();
-                String dustValue = festivals.get(j).getDustValue();
+                String s = f.getWeather().getSky();
+                String dustValue = festivals.get(j).getWeather().getDustValue();
                 String recommend = festivals.get(j).getRecommend();
 
                 if (recommend.equals("비추천")) continue;

@@ -8,7 +8,7 @@ public class Path {
     private String duration;
     private String instructions;
     private String travelMode;
-    private Travel way;
+    private Travel travel;
 
     public String getDistance() {
         return distance;
@@ -58,22 +58,22 @@ public class Path {
         this.travelMode = travelMode;
     }
 
-    public void setWay(Travel way) {
-        this.way = way;
+    public void setTravel(Travel travel) {
+        this.travel = travel;
     }
 
-    public Travel getWay() {
-        return way;
+    public Travel getTravel() {
+        return travel;
     }
 
-    public void setAll(Point start, Point end, String distance, String duration, String instructions, String travelMode, Travel way) {
+    public void setAll(Point start, Point end, String distance, String duration, String instructions, String travelMode, Travel travel) {
         this.start = start;
         this.end = end;
         this.distance = distance;
         this.duration = duration;
         this.instructions = instructions;
         this.travelMode = travelMode;
-        this.way = way;
+        this.travel = travel;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class Path {
                 ", duration='" + duration + '\'' +
                 ", instructions='" + instructions + '\'' +
                 ", travelMode='" + travelMode + '\'' +
-                ", way=" + way +
+                ", travel=" + travel +
                 '}';
     }
 }

@@ -8,24 +8,19 @@ public class Transit implements Travel {
     private String transitName;     // name;
     private String transitShortName;// shortName; -- 있으면
 
-    public Point getStart() {return null;}
-    public Point getEnd() {return null;}
-    public void setStart(Point start) {}
-    public void setEnd(Point end) {}
-
-    public Point2 getStart2() {
+    public Point2 getStart() {
         return start;
     }
 
-    public void setStart2(Point2 start) {
+    public void setStart(Point2 start) {
         this.start = start;
     }
 
-    public Point2 getEnd2() {
+    public Point2 getEnd() {
         return end;
     }
 
-    public void setEnd2(Point2 end) {
+    public void setEnd(Point2 end) {
         this.end = end;
     }
 
@@ -53,6 +48,13 @@ public class Transit implements Travel {
         this.transitShortName = transitShortName;
     }
 
+    public void setAll(Point2 start, Point2 end, String duration, String transitionName, String transitShortName) {
+        this.start = start;
+        this.end = end;
+        this.duration = duration;
+        this.transitName = transitionName;
+        this.transitShortName = transitShortName;
+    }
     @Override
     public String toString() {
         return "Transit{" +

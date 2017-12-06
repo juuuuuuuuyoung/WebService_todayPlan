@@ -14,9 +14,10 @@ public class Festival implements Comparable<Festival>{
     //private String departureTime;
     private String imgUrl;          // 이미지 url
     private String recommend;
-    private String sky;
-    private String dustValue;
-    private String dustGrade;
+    private Weather weather;
+//    private String sky;
+//    private String dustValue;
+//    private String dustGrade;
     private String sortType; // 정렬기준 0이면 소요시간 1이면 도착시간
 
 
@@ -75,28 +76,37 @@ public class Festival implements Comparable<Festival>{
         this.mapY = mapY;
     }
 
-    public String getSky() {
-        return sky;
+//    public String getSky() {
+//        return sky;
+//    }
+//
+//    public void setSky(String sky) {
+//        this.sky = sky;
+//    }
+//
+//    public String getDustValue() {
+//        return dustValue;
+//    }
+//
+//    public void setDustValue(String dustValue) {
+//        this.dustValue = dustValue;
+//    }
+//
+//    public String getDustGrade() {
+//        return dustGrade;
+//    }
+//
+//    public void setDustGrade(String dustGrade) {
+//        this.dustGrade = dustGrade;
+//    }
+
+
+    public Weather getWeather() {
+        return weather;
     }
 
-    public void setSky(String sky) {
-        this.sky = sky;
-    }
-
-    public String getDustValue() {
-        return dustValue;
-    }
-
-    public void setDustValue(String dustValue) {
-        this.dustValue = dustValue;
-    }
-
-    public String getDustGrade() {
-        return dustGrade;
-    }
-
-    public void setDustGrade(String dustGrade) {
-        this.dustGrade = dustGrade;
+    public void setWeather(Weather weather) {
+        this.weather = weather;
     }
 
     public String getImgUrl() {
@@ -131,14 +141,6 @@ public class Festival implements Comparable<Festival>{
         this.legs = legs;
     }
 
-//    public Long getDuration() {
-//        return duration;
-//    }
-//
-//    public void setDuration(Long duration) {
-//        this.duration = duration;
-//    }
-
     @Override
     public String toString() {
         return "Festival{" +
@@ -152,12 +154,12 @@ public class Festival implements Comparable<Festival>{
                 ", legs=" + legs +
                 ", imgUrl='" + imgUrl + '\'' +
                 ", recommend='" + recommend + '\'' +
-                ", sky='" + sky + '\'' +
-                ", dustValue='" + dustValue + '\'' +
-                ", dustGrade='" + dustGrade + '\'' +
+                ", weather=" + weather +
                 ", sortType='" + sortType + '\'' +
                 '}';
     }
+
+
 
     public int compareTo(Festival f) {
         if(f.sortType.equals("1")){
