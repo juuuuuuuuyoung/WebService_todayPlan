@@ -4,20 +4,22 @@ import koreatech.cse.domain.Book;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Today {
-
-    private String recommend;
+    private Map<String, Integer> recommend;
     private Weather weather;
     private ArrayList<Movie> movie;
     private ArrayList<Book> book;
     private ArrayList<Festival> festival;
+    private String response;
 
-    public String getRecommend() {
+    public Map<String, Integer> getRecommend() {
         return recommend;
     }
 
-    public void setRecommend(String recommend) {
+    public void setRecommend(Map<String, Integer> recommend) {
         this.recommend = recommend;
     }
 
@@ -53,6 +55,14 @@ public class Today {
         this.festival = festival;
     }
 
+    public String getResponse() {
+        return response;
+    }
+
+    public void setResponse(String response) {
+        this.response = response;
+    }
+
     @Override
     public String toString() {
         return "Today{" +
@@ -61,6 +71,7 @@ public class Today {
                 ", movie=" + movie +
                 ", book=" + book +
                 ", festival=" + festival +
+                ", response=" + response +
                 '}';
     }
 }

@@ -4,22 +4,22 @@ package koreatech.cse.domain.rest;
 public class Festival implements Comparable<Festival>{
     private int id;
     private String name;            // 축제이름
-    private String mobileapp;
     private String mapX;
     private String mapY;
     private String startLocation;   // 출발 좌표
     private String destLocation;    // 도착 좌표
     private String destAddress;     // 목적지 주소
-    private String path;            // 경로
-    private Long duration;
-    private Long arrivalTime;
-    private String departureTime;
+    private Legs legs = new Legs();         // 경로
+    //private Long arrivalTime;
+    //private String departureTime;
     private String imgUrl;          // 이미지 url
     private String recommend;
-    private String sky;
-    private String dustValue;
-    private String dustGrade;
+    private Weather weather;
+//    private String sky;
+//    private String dustValue;
+//    private String dustGrade;
     private String sortType; // 정렬기준 0이면 소요시간 1이면 도착시간
+
 
     public int getId() {
         return id;
@@ -60,15 +60,6 @@ public class Festival implements Comparable<Festival>{
     public void setDestAddress(String destAddress) {
         this.destAddress = destAddress;
     }
-
-    public Long getDuration() {
-        return duration;
-    }
-
-    public void setDuration(Long duration) {
-        this.duration = duration;
-    }
-
     public String getMapX() {
         return mapX;
     }
@@ -85,62 +76,38 @@ public class Festival implements Comparable<Festival>{
         this.mapY = mapY;
     }
 
-    public String getSky() {
-        return sky;
+//    public String getSky() {
+//        return sky;
+//    }
+//
+//    public void setSky(String sky) {
+//        this.sky = sky;
+//    }
+//
+//    public String getDustValue() {
+//        return dustValue;
+//    }
+//
+//    public void setDustValue(String dustValue) {
+//        this.dustValue = dustValue;
+//    }
+//
+//    public String getDustGrade() {
+//        return dustGrade;
+//    }
+//
+//    public void setDustGrade(String dustGrade) {
+//        this.dustGrade = dustGrade;
+//    }
+
+
+    public Weather getWeather() {
+        return weather;
     }
 
-    public void setSky(String sky) {
-        this.sky = sky;
+    public void setWeather(Weather weather) {
+        this.weather = weather;
     }
-
-    public String getDustValue() {
-        return dustValue;
-    }
-
-    public void setDustValue(String dustValue) {
-        this.dustValue = dustValue;
-    }
-
-    public String getDustGrade() {
-        return dustGrade;
-    }
-
-    public void setDustGrade(String dustGrade) {
-        this.dustGrade = dustGrade;
-    }
-
-    public Long getArrivalTime() {
-        return arrivalTime;
-    }
-
-    public void setArrivalTime(Long arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
-
-    public String getDepartureTime() {
-        return departureTime;
-    }
-
-    public void setDepartureTime(String departureTime) {
-        this.departureTime = departureTime;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getMobileapp() {
-        return mobileapp;
-    }
-
-    public void setMobileapp(String mobileapp) {
-        this.mobileapp = mobileapp;
-    }
-
 
     public String getImgUrl() {
         return imgUrl;
@@ -166,43 +133,48 @@ public class Festival implements Comparable<Festival>{
         this.sortType = sortType;
     }
 
+    public Legs getLegs() {
+        return legs;
+    }
+
+    public void setLegs(Legs legs) {
+        this.legs = legs;
+    }
+
     @Override
     public String toString() {
         return "Festival{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", mobileapp='" + mobileapp + '\'' +
                 ", mapX='" + mapX + '\'' +
                 ", mapY='" + mapY + '\'' +
                 ", startLocation='" + startLocation + '\'' +
                 ", destLocation='" + destLocation + '\'' +
                 ", destAddress='" + destAddress + '\'' +
-                ", arrivalTime='" + arrivalTime + '\'' +
-                ", departureTime='" + departureTime + '\'' +
-                ", path='" + path + '\'' +
-                ", duration=" + duration +
+                ", legs=" + legs +
                 ", imgUrl='" + imgUrl + '\'' +
                 ", recommend='" + recommend + '\'' +
-                ", sky='" + sky + '\'' +
-                ", dustValue='" + dustValue + '\'' +
-                ", dustGrade='" + dustGrade + '\'' +
+                ", weather=" + weather +
+                ", sortType='" + sortType + '\'' +
                 '}';
     }
 
+
+
     public int compareTo(Festival f) {
         if(f.sortType.equals("1")){
-            if (this.arrivalTime > f.arrivalTime) {
+            if (this.getLegs().getArrival().getTimeValue() > f.getLegs().getArrival().getTimeValue()) {
                 return 1;
-            } else if (this.arrivalTime < f.arrivalTime) {
+            } else if (this.getLegs().getArrival().getTimeValue() < f.getLegs().getArrival().getTimeValue()) {
                 return -1;
             } else {
                 return 0;
             }
         }
         else {
-            if (this.duration > f.duration) {
+            if (this.legs.getDistanceValue() > f.legs.getDistanceValue()) {
                 return 1;
-            } else if (this.duration < f.duration) {
+            } else if (this.legs.getDurationValue() < f.legs.getDurationValue()) {
                 return -1;
             } else {
                 return 0;

@@ -1,82 +1,91 @@
 package koreatech.cse.domain.rest;
 
-import java.util.ArrayList;
 
 public class Path {
-    private String startAddress;
-    private String destAddress;
-    private String departureTime;
-    private String arrivalTime;
-    private String totalDistance;
-    private String totalDuration;
-    private ArrayList<Travel> way;
+    private Point start;
+    private Point end;
+    private String distance;
+    private String duration;
+    private String instructions;
+    private String travelMode;
+    private Travel travel;
 
-    public String getStartAddress() {
-        return startAddress;
+    public String getDistance() {
+        return distance;
     }
 
-    public void setStartAddress(String startAddress) {
-        this.startAddress = startAddress;
+    public void setDistance(String distance) {
+        this.distance = distance;
     }
 
-    public String getDestAddress() {
-        return destAddress;
+    public String getDuration() {
+        return duration;
     }
 
-    public void setDestAddress(String destAddress) {
-        this.destAddress = destAddress;
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
 
-    public String getDepartureTime() {
-        return departureTime;
+    public Point getStart() {
+        return start;
     }
 
-    public void setDepartureTime(String departureTime) {
-        this.departureTime = departureTime;
+    public void setStart(Point start) {
+        this.start = start;
     }
 
-    public String getArrivalTime() {
-        return arrivalTime;
+    public Point getEnd() {
+        return end;
     }
 
-    public void setArrivalTime(String arrivalTime) {
-        this.arrivalTime = arrivalTime;
+    public void setEnd(Point end) {
+        this.end = end;
     }
 
-    public String getTotalDistance() {
-        return totalDistance;
+    public String getInstructions() {
+        return instructions;
     }
 
-    public void setTotalDistance(String totalDistance) {
-        this.totalDistance = totalDistance;
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
     }
 
-    public String getTotalDuration() {
-        return totalDuration;
+    public String getTravelMode() {
+        return travelMode;
     }
 
-    public void setTotalDuration(String totalDuration) {
-        this.totalDuration = totalDuration;
+    public void setTravelMode(String travelMode) {
+        this.travelMode = travelMode;
     }
 
-    public ArrayList<Travel> getWay() {
-        return way;
+    public void setTravel(Travel travel) {
+        this.travel = travel;
     }
 
-    public void setWay(ArrayList<Travel> way) {
-        this.way = way;
+    public Travel getTravel() {
+        return travel;
+    }
+
+    public void setAll(Point start, Point end, String distance, String duration, String instructions, String travelMode, Travel travel) {
+        this.start = start;
+        this.end = end;
+        this.distance = distance;
+        this.duration = duration;
+        this.instructions = instructions;
+        this.travelMode = travelMode;
+        this.travel = travel;
     }
 
     @Override
     public String toString() {
         return "Path{" +
-                "startAddress='" + startAddress + '\'' +
-                ", destAddress='" + destAddress + '\'' +
-                ", departureTime='" + departureTime + '\'' +
-                ", arrivalTime='" + arrivalTime + '\'' +
-                ", totalDistance='" + totalDistance + '\'' +
-                ", totalDuration='" + totalDuration + '\'' +
-                ", way=" + way +
+                "start=" + start +
+                ", end=" + end +
+                ", distance='" + distance + '\'' +
+                ", duration='" + duration + '\'' +
+                ", instructions='" + instructions + '\'' +
+                ", travelMode='" + travelMode + '\'' +
+                ", travel=" + travel +
                 '}';
     }
 }

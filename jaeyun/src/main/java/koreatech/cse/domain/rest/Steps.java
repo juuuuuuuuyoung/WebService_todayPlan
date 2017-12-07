@@ -1,14 +1,28 @@
 package koreatech.cse.domain.rest;
 
-public class Steps {
+public class Steps implements Travel{
+    private Point start;
+    private Point end;
+
     private String distance;
     private String duration;
-    private String startLocLat;
-    private String startLocLon;
-    private String endLocLat;
-    private String endLocLon;
-    private String instructions;
-    private String travelMode;
+
+
+    public Point getStart() {
+        return start;
+    }
+
+    public void setStart(Point start) {
+        this.start = start;
+    }
+
+    public Point getEnd() {
+        return end;
+    }
+
+    public void setEnd(Point end) {
+        this.end = end;
+    }
 
     public String getDistance() {
         return distance;
@@ -26,65 +40,20 @@ public class Steps {
         this.duration = duration;
     }
 
-    public String getEndLocLat() {
-        return endLocLat;
-    }
-
-    public void setEndLocLat(String endLocLat) {
-        this.endLocLat = endLocLat;
-    }
-
-    public String getEndLocLon() {
-        return endLocLon;
-    }
-
-    public void setEndLocLon(String endLocLon) {
-        this.endLocLon = endLocLon;
-    }
-
-    public String getInstructions() {
-        return instructions;
-    }
-
-    public void setInstructions(String instructions) {
-        this.instructions = instructions;
-    }
-
-    public String getStartLocLat() {
-        return startLocLat;
-    }
-
-    public void setStartLocLat(String startLocLat) {
-        this.startLocLat = startLocLat;
-    }
-
-    public String getStartLocLon() {
-        return startLocLon;
-    }
-
-    public void setStartLocLon(String startLocLon) {
-        this.startLocLon = startLocLon;
-    }
-
-    public String getTravelMode() {
-        return travelMode;
-    }
-
-    public void setTravelMode(String travelMode) {
-        this.travelMode = travelMode;
+    public void setAll(Point start, Point end, String distance, String duration) {
+        this.start = start;
+        this.end = end;
+        this.distance = distance;
+        this.duration = duration;
     }
 
     @Override
     public String toString() {
-        return "Steps {" +
-                "distance='" + distance + '\'' +
+        return "Steps{" +
+                "start=" + start +
+                ", end=" + end +
+                ", distance='" + distance + '\'' +
                 ", duration='" + duration + '\'' +
-                ", startLocLat='" + startLocLat + '\'' +
-                ", startLocLon='" + startLocLon + '\'' +
-                ", endLocLat='" + endLocLat + '\'' +
-                ", endLocLon='" + endLocLon + '\'' +
-                ", instructions='" + instructions + '\'' +
-                ", travelMode='" + travelMode + '\'' +
                 '}';
     }
 }

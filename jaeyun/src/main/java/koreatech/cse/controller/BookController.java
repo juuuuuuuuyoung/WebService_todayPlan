@@ -27,7 +27,7 @@ public class BookController {
         book.setCategoryId(categoryId);
         book.setCategoryName(categoryName);
 
-        books = bookService.loadBestSellerByCategory(book);
+        //books = bookService.loadBestSellerByCategory(book);
         return "bestseller";
     }
 

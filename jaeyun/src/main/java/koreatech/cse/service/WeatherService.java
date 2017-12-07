@@ -32,7 +32,9 @@ public class WeatherService {
                 .queryParam("query", weather.getLocation())
                 .build()
                 .toUri();
+
         String result = "";
+
         try {
             response = rest.exchange(url.toURL().toString(),HttpMethod.GET, request, String.class);
             System.out.println(url.toURL().toString());
@@ -60,7 +62,8 @@ public class WeatherService {
         /** 결과 있으면 위치 읽기 **/
         JSONArray subObj = (JSONArray) jsonObj.get("documents");
         JSONObject subObj1= (JSONObject) subObj.get(0);
-        String address_name= (String) subObj1.get("address_name");
+        JSONObject AddressObj = (JSONObject) subObj1.get("address");
+        String address_name= (String) AddressObj.get("address_name");
         String y = (String) subObj1.get("y");
         String x = (String) subObj1.get("x");
 
@@ -105,7 +108,7 @@ public class WeatherService {
         return HttpStatus.OK;
     }
 
-    public boolean loadWeatherByAxis(Weather weather) {
+    public HttpStatus loadWeatherByAxis(Weather weather) {
         /** 위도 경도로 주소 파싱 */
         HttpHeaders headers = new HttpHeaders();
 
@@ -124,13 +127,15 @@ public class WeatherService {
         String result = "";
         try {
             response = rest.exchange(url.toURL().toString(),HttpMethod.GET, request, String.class);
+            System.out.println(url.toURL());
         } catch (MalformedURLException e) {
             System.out.println(e);
         }
 
         result = response.getBody();
 
-        //System.out.println(result);
+
+        System.out.println("W : "+result);
 
         JSONParser jsonParser = new JSONParser();
         JSONObject jsonObj = null;
@@ -138,25 +143,66 @@ public class WeatherService {
             jsonObj = (JSONObject) jsonParser.parse(result);
         } catch(Exception e) {}
 
-        JSONObject subObj1, subObj2;
         String address_name = "";
 
 
-        JSONArray subObj = (JSONArray) jsonObj.get("documents");
+        /** 결과 있는지 확인 **/
+        JSONObject metaObject = (JSONObject) jsonObj.get("meta");
+        long totalCount = (Long) metaObject.get("total_count");
 
-        if(subObj.size() > 0) {
-            subObj1= (JSONObject) subObj.get(0);
-            subObj2= (JSONObject) subObj1.get("address");
-            address_name= (String) subObj2.get("address_name");
-        }
+        if(totalCount == 0) return HttpStatus.BAD_REQUEST;
+
+        /** 결과 있으면 위치 읽기 **/
+        JSONArray subObj = (JSONArray) jsonObj.get("documents");
+        JSONObject subObj1= (JSONObject) subObj.get(0);
+        JSONObject AddressObj = (JSONObject) subObj1.get("address");
+        address_name= (String) AddressObj.get("address_name");
+        String y = weather.getLat();
+        String x = weather.getLon();
+
+
         weather.setLocation(address_name);
+        weather.setLat(y);
+        weather.setLon(x);
+
+        /** 주소를 도, 시, 동으로 나누고 weather에 설정하기 -> Movie wideArea 설정에 필요 */
+        ArrayList<String> split_addr = new ArrayList<String>();
+        String str = "";
+        for(int i=0; i<address_name.length(); i++) {
+            if (address_name.charAt(i) == ' ') {
+                split_addr.add(str);
+                str = "";
+                continue;
+            }
+            str += address_name.charAt(i);
+            if (i == address_name.length() - 1) {
+                split_addr.add(str);
+            }
+        }
+        for(int i=0; i<split_addr.size(); i++) {
+            switch (i) {
+                case 0 :
+                    weather.setAddr_depth1(split_addr.get(i)); break;
+                case 1 :
+                    weather.setAddr_depth2(split_addr.get(i)); break;
+                case 2 :
+                    weather.setAddr_depth3(split_addr.get(i)); break;
+                default:
+                    break;
+            }
+        }
 
         /** 날씨 로드 */
         parseWeatherInformation(weather);
 
         /** 미세먼지 로드 */
         parseDustInformation(weather);
-        return true;
+        return HttpStatus.OK;
+
+    }
+
+    public void splitArea(String address_name, Weather weather) {
+
     }
 
     public void parseWeatherInformation(Weather weather) {
@@ -184,7 +230,7 @@ public class WeatherService {
 
 
         weather_result = weather_response.getBody();
-        //System.out.println("WEATHER : " + weather_result);
+        System.out.println("WEATHER : " + weather_result);
 
         JSONParser jsonParser = new JSONParser();
         JSONObject jobj = null;
