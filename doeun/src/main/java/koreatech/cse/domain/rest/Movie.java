@@ -1,29 +1,14 @@
 package koreatech.cse.domain.rest;
 
 public class Movie {
-    private int id;
-    private String targetDt;
     private String rnum;
-    private String rank;
-    private String movieCd;
+    private String targetDt;
     private String movieNm;
     private String openDt;
     private String wideArea;
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void setRnum(String rnum) {
         this.rnum = rnum;
-    }
-
-    public void setRank(String rank) {
-        this.rank = rank;
-    }
-
-    public void setMovieCd(String movieCd) {
-        this.movieCd = movieCd;
     }
 
     public void setMovieNm(String movieNm) {
@@ -38,20 +23,8 @@ public class Movie {
         this.targetDt = targetDt;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public String getRnum() {
         return rnum;
-    }
-
-    public String getRank() {
-        return rank;
-    }
-
-    public String getMovieCd() {
-        return movieCd;
     }
 
     public String getMovieNm() {
@@ -77,11 +50,8 @@ public class Movie {
     @Override
     public String toString() {
         return "Movie{" +
-                "id=" + id +
                 ", targetDt='" + targetDt + '\'' +
                 ", rnum='" + rnum + '\'' +
-                ", rank='" + rank + '\'' +
-                ", movieCd='" + movieCd + '\'' +
                 ", movieNm='" + movieNm + '\'' +
                 ", openDt='" + openDt + '\'' +
                 ", wideAreaCd='" + wideArea + '\'' +

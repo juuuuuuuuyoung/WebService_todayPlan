@@ -37,5 +37,4 @@ public interface TodayMapper {
     List<Today> findByScript(Searchable searchable);
 
 
-    void insert();
 }

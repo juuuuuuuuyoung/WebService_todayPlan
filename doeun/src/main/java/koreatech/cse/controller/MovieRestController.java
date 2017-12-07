@@ -29,9 +29,9 @@ public class MovieRestController {
         String wideArea = areaMapper.findOneFullCD("천안");
 
         if(targetDt.equals(""))
-            targetDt="20170101"; // 초기값을 2017 1월 1일로 지정
+            targetDt="20170101";
         try {
-            movies = movieService.readUrl(targetDt, wideArea, "Y", "K");
+          //  movies = movieService.readUrl(targetDt, wideArea, "Y", "K");
         } catch (Exception e) {
             e.printStackTrace();
         }

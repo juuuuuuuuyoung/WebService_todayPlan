@@ -17,7 +17,7 @@ import org.json.simple.parser.JSONParser;
 @Service
 public class BookService {
 
-    public ArrayList<Book> loadBestSellerByCategory(Book book) {
+    public ArrayList<Book> loadBestSellerByCategory(Book book, int bookTotal) {
 
         System.out.println("####" + book.getCategoryId());
 
@@ -33,7 +33,7 @@ public class BookService {
         URI url = UriComponentsBuilder.fromUriString("http://book.interpark.com/api/bestSeller.api?")
                 .queryParam("key", "interpark")
                 .queryParam("output", "json")
-                .queryParam("categoryId", book.getCategoryId())
+                .queryParam("categoryId", "100")
                 .build()
                 .toUri();
         String result = "";
@@ -57,16 +57,16 @@ public class BookService {
 
         /** 결과 있는지 확인 **/
         long totalResults = (Long) jsonObj.get("totalResults");
+        totalResults = bookTotal;
         if (totalResults > 10) totalResults = 10;
         if(totalResults == 0) return null;
 
-        /** 결과 있으면 위치 읽기 **/
+
+        /** 결과 있으면 읽기 **/
         JSONArray array = (JSONArray)jsonObj.get("item");
-
-
         ArrayList<Book> books = new ArrayList<Book>();
 
-        for(int i = 0 ; i < array.size(); i++) {
+        for(int i = 0 ; i < totalResults; i++) {
             Book tempBook = new Book();
             JSONObject entity = (JSONObject)array.get(i);
 

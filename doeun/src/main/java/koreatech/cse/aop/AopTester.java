@@ -11,7 +11,6 @@ public class AopTester {
     @Before("execution(* koreatech.cse.service.UserService.signup(..))")
     public void beforeMethod(JoinPoint joinPoint) {
         System.out.println("Before " + joinPoint.getSignature().getName() + ": " + new Date());
-
     }
 
     @After("execution(* koreatech.cse.service.UserService.signup(..))")

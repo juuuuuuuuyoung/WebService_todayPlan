@@ -7,11 +7,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-public class User implements UserDetails {  // UserDetails :: Spring Security가 강제로 요구
-    private int id = -9999999;
+public class User implements UserDetails {
+    private int id;
     private String name;
-    private String email;
-    private String password;
+    private String email;   //이메일을 로그인 아이디로
+    private String password;    //비밀번호
     private int age;
 
     private List<Authority> authorities;
@@ -41,21 +41,17 @@ public class User implements UserDetails {  // UserDetails :: Spring Security가
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // interface를 구현
         return authorities;
     }
 
     public String getPassword() {
-        // interface를 구현
         return password;
     }
 
     public String getUsername() {
-        // interface를 구현
         return email;
     }
 
-    // 다 true로 : 계정만료,정지,비밀번호만료, 등의 개념이 없기 때문에 사용하지 않겠다.
     public boolean isAccountNonExpired() {
         return true;
     }
@@ -97,16 +93,6 @@ public class User implements UserDetails {  // UserDetails :: Spring Security가
             return null;
         }
     }
-
-//    // TODO (1) : 만들어 놓으면 좋음
-//    public boolean hasRole(String role) {
-//         for (Authority authority: authorityList) {
-//             if (authority.getRole().equals(role)) {
-//                 return true;
-//             }
-//         }
-//         return false;
-//    }
 
     @Override
     public String toString() {

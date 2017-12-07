@@ -4,43 +4,23 @@ import koreatech.cse.domain.Book;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Today {
-    private int id;
-    private String appKey;
-    private Date createTime;
-    private String userName;
+    private Map<String, Integer> recommend;
     private Weather weather;
     private ArrayList<Movie> movie;
     private ArrayList<Book> book;
+    private ArrayList<Festival> festival;
+    private String response;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-    public String getAppKey() {
-        return appKey;
-    }
-    public void setAppKey(String appKey) {
-        this.appKey = appKey;
-    }
-    public Date getCreateTime() {
-        return createTime;
+    public Map<String, Integer> getRecommend() {
+        return recommend;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setRecommend(Map<String, Integer> recommend) {
+        this.recommend = recommend;
     }
 
     public Weather getWeather() {
@@ -67,16 +47,31 @@ public class Today {
         this.book = book;
     }
 
+    public ArrayList<Festival> getFestival() {
+        return festival;
+    }
+
+    public void setFestival(ArrayList<Festival> festival) {
+        this.festival = festival;
+    }
+
+    public String getResponse() {
+        return response;
+    }
+
+    public void setResponse(String response) {
+        this.response = response;
+    }
+
     @Override
     public String toString() {
         return "Today{" +
-                "id=" + id +
-                ", appKey='" + appKey + '\'' +
-                ", createTime=" + createTime +
-                ", userName='" + userName + '\'' +
+                "recommend='" + recommend + '\'' +
                 ", weather=" + weather +
                 ", movie=" + movie +
                 ", book=" + book +
+                ", festival=" + festival +
+                ", response=" + response +
                 '}';
     }
 }

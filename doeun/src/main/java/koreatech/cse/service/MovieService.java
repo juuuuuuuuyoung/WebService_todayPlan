@@ -21,14 +21,8 @@ import javax.inject.Inject;
 @Service
 public class MovieService {
 
-    @Inject
-    AreaMapper areaMapper;
 
-    public ArrayList<Movie> readUrl(String targetDt, String wideArea, String multiMovieYn, String repNationCd){
-
-        System.out.println("@@@@@\n" + wideArea);
-        System.out.println("@@@@@\n" + multiMovieYn);
-        System.out.println("@@@@@\n" + repNationCd);
+    public ArrayList<Movie> readUrl(String targetDt, String wideArea, int movieTotal ) {
 
         /** 해당 지역 영화 정보 받아오기 */
 
@@ -42,8 +36,6 @@ public class MovieService {
                 .queryParam("key", "e02513baa82320de545208781377a3c1")
                 .queryParam("targetDt", targetDt)
                 .queryParam("wideArea", wideArea)
-                .queryParam("multiMovieYn", multiMovieYn)
-                .queryParam("repNationCd", repNationCd)
                 .build()
                 .toUri();
 
@@ -64,19 +56,20 @@ public class MovieService {
             jsonobject = (JSONObject) jsonparser.parse(result);
         }catch (Exception e){}
 
-        // 해당 날짜에 맞는 박스오피스 정보 받아오기
         JSONObject json =  (JSONObject) jsonobject.get("boxOfficeResult");
-        JSONArray array = (JSONArray)json.get("dailyBoxOfficeList");
+        JSONArray resultArray = (JSONArray)json.get("dailyBoxOfficeList");
 
 
         ArrayList<Movie> movies = new ArrayList<Movie>();
         targetDt = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         System.out.println(targetDt);
-        for(int i = 0 ; i < array.size(); i++) {
-            Movie tempMovie = new Movie();
-            JSONObject entity = (JSONObject)array.get(i);
 
-            // 순번, 영화제목, 개봉일
+        if (movieTotal > resultArray.size()) movieTotal = resultArray.size();
+
+        for(int i = 0 ; i < movieTotal; i++) {
+            Movie tempMovie = new Movie();
+            JSONObject entity = (JSONObject)resultArray.get(i);
+
             String rnum = (String) entity.get("rnum");
             String movieNm = (String) entity.get("movieNm");
             String openDt = (String) entity.get("openDt");
