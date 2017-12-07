@@ -37,9 +37,9 @@
         <form:form modelAttribute="today">
             <form:hidden path="id"/>
             location(주소 혹은 좌표): <form:input  path="location"/><br/>
-            search number(책,영화,축제 검색 갯수): <form:input  path="searchNumber"/><br/>
-            festival search Type (소요시간 : 0, 도착시간 : 1): <form:input  path="searchType"/><br/>
-            inside activity (책과 영화 검색 : 0, 책검색 : 1, 영화검색: 2): <form:input  path="activity"/><br/>
+            search number(책,영화,축제 검색 갯수, default : 0, 최대 10개): <form:input  path="total"/><br/>
+            festival search Type (소요시간(default) : 0, 도착시간 : 1): <form:input  path="festSortType"/><br/>
+            inside activity (책과 영화 검색(default) : 0, 영화검색: 1,책검색 : 2): <form:input  path="activityType"/><br/>
             <input type="submit" value="Go"/>
 <%--            <a class="btn btn-primary btn-xl js-scroll-trigger" type="submit" value="View">Go!</a>--%>
         </form:form>

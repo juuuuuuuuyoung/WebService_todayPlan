@@ -5,34 +5,35 @@ import java.util.ArrayList;
 
 public class Today{
     private String location;
-    private String searchNumber;
-    private String searchType;
-    private String activity;
+    private String total;
+    private String festSortType;
+    private String activityType;
 
+    public String getTotal() {
+        return total;
+    }
+    public void setTotal(String total) {
+        this.total = total;
+    }
+    public String getFestSortType() {
+        return festSortType;
+    }
+    public void setFestSortType(String festSortType) {
+        this.festSortType = festSortType;
+    }
+    public String getActivityType() {
+        return activityType;
+    }
+    public void setActivityType(String activityType) {
+        this.activityType = activityType;
+    }
     public String getLocation() {
         return location;
     }
     public void setLocation(String location) {
         this.location = location;
     }
-    public String getSearchNumber() {
-        return searchNumber;
-    }
-    public void setSearchNumber(String searchNumber) {
-        this.searchNumber = searchNumber;
-    }
-    public String getSearchType() {
-        return searchType;
-    }
-    public void setSearchType(String searchType) {
-        this.searchType = searchType;
-    }
-    public String getActivity() {
-        return activity;
-    }
-    public void setActivity(String activity) {
-        this.activity = activity;
-    }
+
 
 
     private int id;

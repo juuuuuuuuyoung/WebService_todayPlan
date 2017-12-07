@@ -23,13 +23,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 @Controller
 @RequestMapping("/today")
 public class TodayRestController {
 
-    @Inject
-    private TodayService todayService;
 
     @RequestMapping("/front")// 정보를 입력할 수 있도록 화면을 보여줌
     public String view(Model model) {
@@ -41,106 +41,124 @@ public class TodayRestController {
     @Transactional
     @RequestMapping(value = "/front", method = RequestMethod.POST)  //정보가 실제로 전달되는 곳
     public String viewInformation(@ModelAttribute Today today, Model model) {
-        System.out.println(today.getSearchType());
 
-        String weather = "좋음";
-        String dust = "나쁨";
-        String recommend = "book";
+        HttpHeaders headers = new HttpHeaders();
+        //headers.add("Content-Type", "application/json;charset=UTF-8");
+        HttpEntity request = new HttpEntity(headers);
+        ResponseEntity<String> response = null;
+        RestTemplate rest = new RestTemplate();
+        URI url = UriComponentsBuilder.fromUriString("http://wscproject2017.us-east-2.elasticbeanstalk.com/todayplan/today")
+                .queryParam("location", today.getLocation())
+                .queryParam("festSortType",today.getFestSortType())
+                .queryParam("total",today.getTotal())
+                .queryParam("activityType",today.getActivityType())
+                .build()
+                .toUri();
 
-        //model.addAttribute("dust", "나쁨");
-        model.addAttribute(weather);
-        model.addAttribute(dust);
-        model.addAttribute(recommend);
+        String result = "";
+        try {
+            response = rest.exchange(url.toURL().toString(), HttpMethod.GET, request, String.class);
+        } catch (MalformedURLException e) {
+            System.out.println(e);
+        }
+        result = response.getBody(); //result에 결과 다 넣기
+        try {
+            System.out.println(url.toURL().toString());
+        } catch (Exception e) {
+        }
 
-        // return "main";
-        return "redirect:/today/main";
-    }
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObj = null;
+        try {
+            jsonObj = (JSONObject) jsonParser.parse(result);
+        } catch (Exception e) {
+        }
+        JSONObject recommendType = (JSONObject)jsonObj.get("recommend");
+        String recommend = (String)recommendType.get("name");
+        Long idx = (Long) recommendType.get("index");
+        int Idx = Integer.parseInt(String.valueOf(idx));
 
-    @RequestMapping(value = "/main", method = RequestMethod.GET)
-    public String viewSometing(Model model, @RequestParam(required = false, defaultValue = "") String weather, @RequestParam(required = false, defaultValue = "") String dust, @RequestParam(required = false, defaultValue = "") String recommend) {
-        //model.addAttribute("weather","good");
-        //model.addAttribute("dust","good");
-        //model.addAttribute("recommend","book");
-        Today today = new Today();
+        System.out.println("recommend : "+recommend);
 
-        model.addAttribute(today);
-        model.addAttribute("weather","구름");
-        model.addAttribute("dust","보통");
-        model.addAttribute("recommend","festival");
-        model.addAttribute("address","천안시 동남구 병천면 가전리");
-        model.addAttribute("lat","36.765371699999996");
-        model.addAttribute("lon","127.28594249999999");
+        if(recommend.equals("festival")) {
+            model.addAttribute("bestType","festival");
+        }
+        else if(recommend.equals("movie")) {
+            model.addAttribute("bestType","movie");
+        }
+        else if(recommend.equals("book")) {
+            model.addAttribute("bestType","book");
+        }
 
-        return "/main";
-    }
-    /* @Transactional
-     @RequestMapping(value="/front", method= RequestMethod.POST)  //정보가 실제로 전달되는 곳
-     public String viewInformation(@ModelAttribute Today today, Model model) {
-         System.out.println(today.getSearchType());
-         //todayService.findToday(today.getLocation(),today.getSearchNumber(),today.getSearchType(),today.getActivity());
+        //축제
+        JSONArray festivalObj = (JSONArray) jsonObj.get("festival");
+        JSONObject num3Obj = (JSONObject) festivalObj.get(Idx);
+        String festivalTitle = (String) num3Obj.get("name");
+        String festivalAddress = (String) num3Obj.get("destAddress");
+        //String path = (String) num3Obj.get("legs");
+        model.addAttribute("festivalTitle",festivalTitle);
+        model.addAttribute("festivalAddress",festivalAddress);
+         //model.addAttribute("path",path);
 
+        ArrayList<String> recofestival = new ArrayList<String>();
+        ArrayList<String> recofestivalAddress = new ArrayList<String>();
 
-         HttpHeaders headers = new HttpHeaders();
-         headers.add("Content-Type", "application/json;charset=UTF-8");
-         HttpEntity request = new HttpEntity(headers);
-         ResponseEntity<String> response = null;
-         RestTemplate rest = new RestTemplate();
-         URI url = UriComponentsBuilder.fromUriString("https://localhost:8080/today/main/json?")
-                 .queryParam("location", today.getLocation())
-                 .queryParam("searchNumber", today.getSearchNumber())
-                 .queryParam("searachType", today.getSearchType())
-                 .queryParam("activity", today.getActivity())
-                 .build()
-                 .toUri();
+        int searchNum;
+        if(today.getTotal().equals("")) {
+            searchNum=3;
+        }
+        else{
+            searchNum = Integer.parseInt(today.getTotal());
+        }
+        model.addAttribute("total",searchNum);
+        System.out.println("SearchNum : "+searchNum);
+        int i=0;
+        for(i=0;i<searchNum;i++){
+            System.out.println((String)((JSONObject)festivalObj.get(i)).get("name"));
+            recofestival.add((String)((JSONObject)festivalObj.get(i)).get("name")) ;
+            recofestivalAddress.add((String) ((JSONObject)festivalObj.get(i)).get("destAddress"));
+        }
+        model.addAttribute("recommendFestival",recofestival);
+        model.addAttribute("recommendFestivalAddress",recofestivalAddress);
 
-         String result = "";
-         try {
-             response = rest.exchange(url.toURL().toString(), HttpMethod.GET, request, String.class);
-         } catch (MalformedURLException e) {
-             System.out.println(e);
-         }
-         result = response.getBody(); //result에 결과 다 넣기
-         try {
-             System.out.println(url.toURL().toString());
-         } catch (Exception e) {
-         }
+        //movie
+        JSONArray movieObj = (JSONArray) jsonObj.get("movie");
+        JSONObject numObj = (JSONObject) movieObj.get(Idx);
+        String movieName = (String) numObj.get("movieNm");
+        String openDt = (String)numObj.get("openDt") ;
+        model.addAttribute("movieName",movieName);
+        model.addAttribute("openDt",openDt);
 
-         JSONParser jsonParser = new JSONParser();
-         JSONObject jsonObj = null;
-         try {
-             jsonObj = (JSONObject) jsonParser.parse(result);
-         } catch (Exception e) {
-         }
+        //book
+        JSONArray bookObj = (JSONArray) jsonObj.get("book");
+        JSONObject num2Obj = (JSONObject) bookObj.get(Idx);
+        String bookName = (String) num2Obj.get("title");
+        String bookAuthor = (String) num2Obj.get("author");
+        String bookDescription = (String) num2Obj.get("description");
+        Long bookPrice = (Long)num2Obj.get("price");
+        model.addAttribute("bookName",bookName);
+        model.addAttribute("bookAuthor",bookAuthor);
+        model.addAttribute("bookDescription",bookDescription);
+        model.addAttribute("bookPrice",bookPrice);
 
-         JSONObject subObj = (JSONObject) jsonObj.get("weather");
-         String weather = (String) subObj.get("sky"); //눈, 비
-         String dust = (String) subObj.get("dustGrade"); //좋음 나쁨
-         String recommend = (String) subObj.get("recommend"); //book? movie? festival
-         String lon = (String) subObj.get("lon"); //lon
-         String lat = (String) subObj.get("lat");//lat
-
-
-         JSONArray movieObj = (JSONArray) jsonObj.get("movie");
-         JSONObject numObj = (JSONObject) movieObj.get(0);
-         String movieName = (String) numObj.get("movieNm");
-
-         JSONArray bookObj = (JSONArray) jsonObj.get("book");
-         JSONObject num2Obj = (JSONObject) bookObj.get(0);
-         String bookName = (String) num2Obj.get("title");
-         String bookAuthor = (String) num2Obj.get("author");
-         String bookDescription = (String) num2Obj.get("description");
-
-         JSONArray festivalObj = (JSONArray) jsonObj.get("festival");
-         JSONObject num3Obj = (JSONObject) festivalObj.get(0);
-         String festivalTitle = (String) num2Obj.get("name");
+        JSONObject subObj = (JSONObject) jsonObj.get("weather");
+        String weather = (String) subObj.get("sky"); //눈, 비
+        String dust = (String) subObj.get("dustGrade"); //좋음 나쁨
+        String lon = (String) subObj.get("lon"); //lon
+        String lat = (String) subObj.get("lat");//lat
+        String location = (String) subObj.get("location");//lat
 
 
-         model.addAttribute(weather);
-         model.addAttribute(dust);
-         model.addAttribute(recommend);
+        model.addAttribute("weather",weather);
+        model.addAttribute("dust",dust);
+        model.addAttribute("result",result);
+        model.addAttribute("lat",lat);
+        model.addAttribute("lon",lon);
+        model.addAttribute("address",location);
+
 
          return "main";
-     }
- */
+    }
+
 
 }

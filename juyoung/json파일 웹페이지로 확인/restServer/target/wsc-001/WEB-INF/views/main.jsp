@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <% String cp = request.getContextPath(); %> <%--ContextPath 선언 --%>
 <html lang="en">
@@ -86,11 +87,17 @@
                     <strong>Wheather</strong>
                 </h4>
                 <h4 id="again">
-                    <strong>${weather}</strong>
+                    <%--<strong>${weather}</strong>--%>
                 </h4>
                 <script>
-                    if("${weather}"=="눈") document.getElementById('wheather').innerHTML="<img  src=\"../resources/img/snow.png\" width=\"100\" height=\"100\" alt=\"\">";
-                    else if("${weather}"=="비") document.getElementById('wheather').innerHTML="<img  src=\"../resources/img/rain.png\" width=\"100\" height=\"100\" alt=\"\">";
+                    if("${weather}"=="눈") {
+                        document.getElementById('wheather').innerHTML="<img  src=\"../resources/img/snow.png\" width=\"100\" height=\"100\" alt=\"\">";
+                        document.getElementById('snow').innerHTML="<strong>rain</strong>";
+                    }
+                    else if("${weather}"=="비"){
+                        document.getElementById('wheather').innerHTML="<img  src=\"../resources/img/rain.png\" width=\"100\" height=\"100\" alt=\"\">";
+                        document.getElementById('again').innerHTML="<strong>rain</strong>";
+                    }
                     else {
                         document.getElementById('wheather').innerHTML="<img  src=\"../resources/img/good.png\" width=\"100\" height=\"100\" alt=\"\">";
                         document.getElementById('again').innerHTML="<strong>OK</strong>";
@@ -105,12 +112,18 @@
                 <h4>
                 <strong>Dust</strong>
             </h4>
-                <h4>
-                    <strong>${dust}</strong>
+                <h4 id ="again2">
+                    <%--<strong>${dust}</strong>--%>
                 </h4>
                 <script>
-                    if(("${dust}"=="나쁨" )||("${dust}"=="매우나쁨")) document.getElementById('dust').innerHTML="<img  src=\"../resources/img/Thumbs%20down.png\" width=\"100\" height=\"100\" alt=\"\">";
-                    else document.getElementById('dust').innerHTML="<img  src=\"../resources/img/Thumbs%20up.png\" width=\"100\" height=\"100\" alt=\"\">";
+                    if(("${dust}"=="나쁨" )||("${dust}"=="매우나쁨")) {
+                        document.getElementById('dust').innerHTML="<img  src=\"../resources/img/Thumbs%20down.png\" width=\"100\" height=\"100\" alt=\"\">";
+                        document.getElementById('again2').innerHTML="<strong>Bad</strong>";
+                    }
+                    else{
+                        document.getElementById('dust').innerHTML="<img  src=\"../resources/img/Thumbs%20up.png\" width=\"100\" height=\"100\" alt=\"\">";
+                        document.getElementById('again2').innerHTML="<strong>Good</strong>";
+                    }
                 </script>
             </div>
             <div class="col-lg-2 col-md-6 mb-5 mb-lg-0">
@@ -120,9 +133,9 @@
                 <%--<img  src="../resources/img/book.png" width="200" height=auto alt="">--%>
                 <div id = "recommend"></div>
                 <h4>
-                    <strong>${recommend}</strong>
+                    <strong>${bestType}</strong>
                     <script>
-                        var recommend = "${recommend}";
+                        var recommend = "${bestType}";
                         console.log(typeof(recommend));
                         if(recommend=="book") document.getElementById('recommend').innerHTML="<img  src=\"../resources/img/book.png\" width=\"200\" height=auto alt=\"\">";
                         else if(recommend=="festival") document.getElementById('recommend').innerHTML="<img  src=\"../resources/img/festival.png\" width=\"200\" height=auto alt=\"\">";
@@ -138,8 +151,23 @@
     <div class="container text-center">
         <div class="row">
             <div class="col-lg-10 mx-auto">
-                <h2>${recommend}</h2>
-                <p class="lead mb-5">여기에설명쓰기</p>
+                <h2>${bestType}</h2>
+                <p class="lead mb-5" id="bestContents">
+
+                </p>
+                <script>
+                    var bestType = "${bestType}";
+                    if(bestType=="book") document.getElementById('bestContents').innerHTML="title : ${bookName}\n" +
+                        "                    author : ${bookAuthor}\n" +
+                        "                    contents : ${bookDescription}\n" +
+                        "                    price : ${bookPrice}";
+                    else if(bestType=="movie") document.getElementById('bestContents').innerHTML="title : ${movieName}\n" +
+                        "                    개봉일 : ${openDt}";
+                    else if(bestType=="festival") document.getElementById('bestContents').innerHTML="title : ${festivalTitle}\n" +
+                        "                    address : ${festivalAddress}\n<br/>" +
+                        "                    path : ${path}";
+
+                </script>
             </div>
         </div>
     </div>
@@ -153,7 +181,7 @@
         </div>
         <div class="row no-gutters">
             <div class="col-lg-6">
-                <a class="portfolio-item" href="#best">
+                <a class="portfolio-item" href="#about">
               <span class="caption">
                 <span class="caption-content">
                   <h2>BEST PLAN</h2>
@@ -164,29 +192,94 @@
                 </a>
             </div>
             <div class="col-lg-6">
-                <a class="portfolio-item" href="#">
+                <a class="portfolio-item"  data-toggle="modal" data-target="#myModal2">
+                    <!-- 모달 팝업 -->
+                    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2" aria-hidden="true" >
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span class="sr-only">Close</span>
+                                    </button>
+                                    <h4 class="modal-title" id="myModalLabel2" >박스오피스</h4>
+                                </div>
+                                <div class="modal-body" > 영화 정보</div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
               <span class="caption">
                 <span class="caption-content">
                   <h2>MOVIE</h2>
-                  <p class="mb-0">현재 상영하는 박스오피스 입니다.</p>
+                    <p class="mb-0">현재 상영하는 박스오피스 입니다.</p>
                 </span>
               </span>
                     <img class="img-fluid" src="../resources/img/movie.jpg" alt="">
                 </a>
             </div>
             <div class="col-lg-6">
-                <a class="portfolio-item" href="#">
+                <a class="portfolio-item" data-toggle="modal" data-target="#myModal3">
+                    <!-- 모달 팝업 -->
+                    <div class="modal fade" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true" >
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span class="sr-only">Close</span>
+                                    </button>
+                                    <h4 class="modal-title" id="myModalLabel3" >베스트셀러</h4>
+                                </div>
+                                <div class="modal-body" > 책정보</div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
               <span class="caption">
                 <span class="caption-content">
                   <h2>BOOK</h2>
-                  <p class="mb-0">베스트 셀러 10권 리스트입니다.</p>
+                    <p class="mb-0">베스트 셀러 리스트</p>
                 </span>
               </span>
                     <img class="img-fluid" src="../resources/img/book.jpg" alt="">
                 </a>
             </div>
             <div class="col-lg-6">
-                <a class="portfolio-item" href="#">
+                <a class="portfolio-item" data-toggle="modal" data-target="#myModal4">
+                    <!-- 모달 팝업 -->
+                    <div class="modal fade" id="myModal4" tabindex="-1" role="dialog" aria-labelledby="myModalLabel4" aria-hidden="true" >
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span class="sr-only">Close</span>
+                                    </button>
+                                    <h4 class="modal-title" id="myModalLabel4" >축제 리스트</h4>
+                                </div>
+                                <div class="modal-body" id = "festivalList">
+
+                                </div>
+                                <script>
+                                    var num = Number(${total})
+                                    console.log(num);
+                                    var recommendFestival2 = "${recommendFestival}";
+                                    var recommendFestival = recommendFestival2.split(',');
+                                    var recommendFestivalAddress2 = "${recommendFestivalAddress}";
+                                    var recommendFestivalAddress=recommendFestivalAddress2.split(',');
+                                    for (var i =0;i<num;i++) {
+                                        document.getElementById('festivalList').innerHTML=recommendFestival[i]+"<br/>\n" +
+                                            recommendFestivalAddress[i]+"<br/><br/>";
+                                    }
+                                </script>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
               <span class="caption">
                 <span class="caption-content">
                   <h2>FESTIVAL</h2>
@@ -231,7 +324,7 @@
                         </button>
                         <h4 class="modal-title" id="myModalLabel" >JSON 읽어보기</h4>
                     </div>
-                    <div class="modal-body" > 여기에 작성 </div>
+                    <div class="modal-body" > ${result}</div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
@@ -277,17 +370,6 @@
     function initMap() {
         navigator.geolocation.getCurrentPosition(success, error);
     }
-    //날씨와 미세먼지에 따라 영화 혹은 festival을 bestchoice에 보여줌
-
-    //그 다음 설명에 자세히 보여줌
-
-    //another choice에 보여줄것
-
-    //내 위치 받아와서 주소로 변환해주기
-
-    //json파일?
-
-
 
 </script>
 <script async defer
