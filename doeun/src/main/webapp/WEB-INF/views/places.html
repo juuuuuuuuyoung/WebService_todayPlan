@@ -63,7 +63,7 @@
         var search = {
             bounds: map.getBounds()
         };
-        if (type != 'establishment') {
+        if (type != 'movie_theater') {
             search.types = [type];
         }
         places.search(search, function (results, status) {
@@ -205,16 +205,7 @@
 <div id="map_canvas"></div>
 <div id="controls">
     <form name="controls">
-        <input type="radio" name="type" value="establishment" onclick="search()" checked="checked" />기관, 시설
-        <br/>
-        <input type="radio" name="type" value="hospital" onclick="search()" />병원
-        <br/>
-        <input type="radio" name="type" value="restaurant" onclick="search()" />레스토랑
-        <br/>
-        <input type="radio" name="type" value="subway_station" onclick="search()" />지하철
-        <br/>
-        <input type="radio" name="type" value="lodging" onclick="search()" />숙박업소
-        <br/>
+        <input type="radio" name="type" value="movie_theater" onclick="search()" checked="checked"/>영화관
     </form>
 
 </div>
