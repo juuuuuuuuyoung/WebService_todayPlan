@@ -154,58 +154,64 @@ public class HomeController {
         model.addAttribute("recommendFestival",recofestival);
         model.addAttribute("recommendFestivalAddress",recofestivalAddress);
 
-        //movie /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        JSONArray movieObj = (JSONArray) jsonObj.get("movie");
-        JSONObject numObj = (JSONObject) movieObj.get(Idx);
-        String movieName = (String) numObj.get("movieNm");
-        String openDt = (String)numObj.get("openDt") ;
-        model.addAttribute("movieName",movieName);
-        model.addAttribute("openDt",openDt);
+        int activity ;
+        if(today.getActivityType().equals("")) activity = 0;
+        else activity = Integer.parseInt(today.getActivityType());
 
-        ArrayList<String> recomovie = new ArrayList<String>();
-        ArrayList<String> recomovieopenDt = new ArrayList<String>();
+        if(activity == 0 || activity == 1) {
+            //movie /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            JSONArray movieObj = (JSONArray) jsonObj.get("movie");
+            JSONObject numObj = (JSONObject) movieObj.get(Idx);
+            String movieName = (String) numObj.get("movieNm");
+            String openDt = (String) numObj.get("openDt");
+            model.addAttribute("movieName", movieName);
+            model.addAttribute("openDt", openDt);
 
-        model.addAttribute("total",searchNum);
-        System.out.println("SearchNum : "+searchNum);
+            ArrayList<String> recomovie = new ArrayList<String>();
+            ArrayList<String> recomovieopenDt = new ArrayList<String>();
 
-        for(i=0;i<searchNum;i++){
-            System.out.println((String)((JSONObject)movieObj.get(i)).get("movieNm"));
-            System.out.println((String)((JSONObject)movieObj.get(i)).get("openDt"));
-            recomovie.add((String)((JSONObject)movieObj.get(i)).get("movieNm")) ;
-            recomovieopenDt.add((String) ((JSONObject)movieObj.get(i)).get("openDt"));
+            model.addAttribute("total", searchNum);
+            System.out.println("SearchNum : " + searchNum);
+
+            for (i = 0; i < searchNum; i++) {
+                System.out.println((String) ((JSONObject) movieObj.get(i)).get("movieNm"));
+                System.out.println((String) ((JSONObject) movieObj.get(i)).get("openDt"));
+                recomovie.add((String) ((JSONObject) movieObj.get(i)).get("movieNm"));
+                recomovieopenDt.add((String) ((JSONObject) movieObj.get(i)).get("openDt"));
+            }
+            model.addAttribute("recommendMovie", recomovie);
+            model.addAttribute("recommendMovieOpenDt", recomovieopenDt);
+
         }
-        model.addAttribute("recommendMovie",recomovie);
-        model.addAttribute("recommendMovieOpenDt",recomovieopenDt);
+        if(activity == 0 || activity == 2) {
+            //book /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            JSONArray bookObj = (JSONArray) jsonObj.get("book");
+            JSONObject num2Obj = (JSONObject) bookObj.get(Idx);
+            String bookName = (String) num2Obj.get("title");
+            String bookAuthor = (String) num2Obj.get("author");
+            String bookDescription = (String) num2Obj.get("description");
+            Long bookPrice = (Long) num2Obj.get("price");
+            model.addAttribute("bookName", bookName);
+            model.addAttribute("bookAuthor", bookAuthor);
+            model.addAttribute("bookDescription", bookDescription);
+            model.addAttribute("bookPrice", bookPrice);
 
+            ArrayList<String> recobook = new ArrayList<String>();
+            ArrayList<String> recobookauthor = new ArrayList<String>();
 
-        //book /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        JSONArray bookObj = (JSONArray) jsonObj.get("book");
-        JSONObject num2Obj = (JSONObject) bookObj.get(Idx);
-        String bookName = (String) num2Obj.get("title");
-        String bookAuthor = (String) num2Obj.get("author");
-        String bookDescription = (String) num2Obj.get("description");
-        Long bookPrice = (Long)num2Obj.get("price");
-        model.addAttribute("bookName",bookName);
-        model.addAttribute("bookAuthor",bookAuthor);
-        model.addAttribute("bookDescription",bookDescription);
-        model.addAttribute("bookPrice",bookPrice);
+            model.addAttribute("total", searchNum);
+            System.out.println("SearchNum : " + searchNum);
 
-        ArrayList<String> recobook = new ArrayList<String>();
-        ArrayList<String> recobookauthor = new ArrayList<String>();
-
-        model.addAttribute("total",searchNum);
-        System.out.println("SearchNum : "+searchNum);
-
-        for(i=0;i<searchNum;i++){
-            System.out.println((String)((JSONObject)bookObj.get(i)).get("title"));
-            System.out.println((String)((JSONObject)bookObj.get(i)).get("author"));
-            recobook.add((String)((JSONObject)bookObj.get(i)).get("title")) ;
-            recobookauthor.add((String) ((JSONObject)bookObj.get(i)).get("author"));
+            for (i = 0; i < searchNum; i++) {
+                System.out.println((String) ((JSONObject) bookObj.get(i)).get("title"));
+                System.out.println((String) ((JSONObject) bookObj.get(i)).get("author"));
+                recobook.add((String) ((JSONObject) bookObj.get(i)).get("title"));
+                recobookauthor.add((String) ((JSONObject) bookObj.get(i)).get("author"));
+            }
+            model.addAttribute("recommendBook", recobook);
+            model.addAttribute("recommendBookAuthor", recobookauthor);
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         }
-        model.addAttribute("recommendBook",recobook);
-        model.addAttribute("recommendBookAuthor",recobookauthor);
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
         JSONObject subObj = (JSONObject) jsonObj.get("weather");
         String weather = (String) subObj.get("sky"); //눈, 비

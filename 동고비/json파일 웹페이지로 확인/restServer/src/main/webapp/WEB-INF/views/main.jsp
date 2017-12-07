@@ -157,16 +157,26 @@
                 </p>
                 <script>
                     var bestType = "${bestType}";
-                    if(bestType=="book") document.getElementById('bestContents').innerHTML="title : ${bookName}\n" +
+
+
+                    if(bestType=="book") document.getElementById('bestContents').innerHTML="${bookName}\n" +
                         "                    author : ${bookAuthor}\n" +
                         "                    contents : ${bookDescription}\n" +
                         "                    price : ${bookPrice}";
-                    else if(bestType=="movie") document.getElementById('bestContents').innerHTML="title : ${movieName}\n" +
+                    else if(bestType=="movie") document.getElementById('bestContents').innerHTML="${movieName}\n" +
                         "                    개봉일 : ${openDt}";
-                    else if(bestType=="festival") document.getElementById('bestContents').innerHTML="title : ${festivalTitle}\n" +
-                        "                    address : ${festivalAddress}\n<br/>" +
-                        "                    path : ${path}";
+                    else if(bestType=="festival") {
+                        var path2 = "${path}";
+                        var path1 = path2.substring(1,path2.length-1);
+                        var path = path1.split("/, ");
 
+                        document.getElementById('bestContents').innerHTML="${festivalTitle}\n" +
+                            "                    address : ${festivalAddress}\n<br/>" +
+                            "                    <strong>경로</strong><br/><br/>";
+                        for(var i=0;i < path.length;i++){
+                            document.getElementById('bestContents').innerHTML+=i+" : " + path[i]+"<br/>";
+                        }
+                    }
                 </script>
             </div>
         </div>
@@ -203,7 +213,24 @@
                                     </button>
                                     <h4 class="modal-title" id="myModalLabel2" >박스오피스</h4>
                                 </div>
-                                <div class="modal-body" > 영화 정보</div>
+                                <div class="modal-body" id="movielist"></div>
+                                <script>
+                                    var num = Number(${total})
+                                    var recommendMovie2 = "${recommendMovie}";
+                                    if(recommendMovie2 == "") document.getElementById('movielist').innerHTML="";
+                                    else {
+                                        var recommendMovie1 = recommendMovie2.substring(1,recommendMovie2.length-1);
+                                        var recommendMovie = recommendMovie1.split(',');
+                                        var recommendMovieOpenDt2 = "${recommendMovieOpenDt}";
+                                        var recommendMovieOpenDt1 = recommendMovieOpenDt2.substring(1,recommendMovieOpenDt2.length-1);
+                                        var recommendMovieOpenDt = recommendMovieOpenDt1.split(',');
+                                        for (var i =0;i<num;i++) {
+                                            document.getElementById('movielist').innerHTML+=recommendMovie[i]+"<br/>\n" +
+                                                recommendMovieOpenDt[i]+"<br/><br/>";
+                                        }
+                                    }
+
+                                </script>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                 </div>
@@ -231,7 +258,24 @@
                                     </button>
                                     <h4 class="modal-title" id="myModalLabel3" >베스트셀러</h4>
                                 </div>
-                                <div class="modal-body" > 책정보</div>
+                                <div class="modal-body" id="booklist" ></div>
+                                <script>
+                                    var num = Number(${total})
+                                    var recommendBook2 = "${recommendBook}";
+
+                                    if(recommendBook2 == "") document.getElementById('booklist').innerHTML="";
+                                    else{
+                                    var recommendBook1 = recommendBook2.substring(1,recommendBook2.length-1);
+                                    var recommendBook = recommendBook1.split(',');
+                                    var recommendBookAuthor2 = "${recommendBookAuthor}";
+                                    var recommendBookAuthor1 =recommendBookAuthor2.substring(1,recommendBookAuthor2.length-1)
+                                    var recommendBookAuthor = recommendBookAuthor1.split(',');
+                                    for (var i =0;i<num;i++) {
+                                        document.getElementById('booklist').innerHTML+=recommendBook[i]+"<br/>\n" +
+                                            recommendBookAuthor[i]+"<br/><br/>";
+                                    }
+                                    }
+                                </script>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                 </div>
@@ -260,17 +304,18 @@
                                     <h4 class="modal-title" id="myModalLabel4" >축제 리스트</h4>
                                 </div>
                                 <div class="modal-body" id = "festivalList">
-
                                 </div>
                                 <script>
                                     var num = Number(${total})
                                     console.log(num);
                                     var recommendFestival2 = "${recommendFestival}";
-                                    var recommendFestival = recommendFestival2.split(',');
+                                    var recommendFestival1 = recommendFestival2.substring(1,recommendFestival2.length-1);
+                                    var recommendFestival = recommendFestival1.split(',');
                                     var recommendFestivalAddress2 = "${recommendFestivalAddress}";
-                                    var recommendFestivalAddress=recommendFestivalAddress2.split(',');
+                                    var recommendFestivalAddress1 = recommendFestivalAddress2.substring(1,recommendFestivalAddress2.length-1) ;
+                                    var recommendFestivalAddress= recommendFestivalAddress1.split(',');
                                     for (var i =0;i<num;i++) {
-                                        document.getElementById('festivalList').innerHTML=recommendFestival[i]+"<br/>\n" +
+                                        document.getElementById('festivalList').innerHTML+=recommendFestival[i]+"<br/>\n" +
                                             recommendFestivalAddress[i]+"<br/><br/>";
                                     }
                                 </script>
@@ -344,15 +389,13 @@
 <a class="scroll-to-top rounded js-scroll-trigger" href="#page-top">
     <i class="fa fa-angle-up"></i>
 </a>
+
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAY8nrL5q2WEN5L1mr6nyeC1NwJ5Va0W2Q&callback=showMap">
+</script>
 <!--map -->
 <script>
-    navigator.geolocation.getCurrentPosition(function(position){
-        console.log('latitude: ', position.coords.latitude);
-        console.log('longitude: ', position.coords.longitude);
-    });
-    function success(position) {
-        /*var latitude  = position.coords.latitude;
-        var longitude = position.coords.longitude;*/
+    function showMap() {
         var latitude  = ${lat};
         var longitude = ${lon};
 
@@ -366,16 +409,7 @@
             map: map
         });
     };
-    function error() {};
-    function initMap() {
-        navigator.geolocation.getCurrentPosition(success, error);
-    }
-
 </script>
-<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAY8nrL5q2WEN5L1mr6nyeC1NwJ5Va0W2Q&callback=initMap">
-</script>
-
 <!-- Bootstrap core JavaScript -->
 <script src="../resources/vendor/jquery/jquery.min.js"></script>
 <script src="../resources/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>

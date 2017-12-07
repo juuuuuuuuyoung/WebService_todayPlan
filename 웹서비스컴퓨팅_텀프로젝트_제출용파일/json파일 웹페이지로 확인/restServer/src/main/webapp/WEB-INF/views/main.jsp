@@ -217,15 +217,19 @@
                                 <script>
                                     var num = Number(${total})
                                     var recommendMovie2 = "${recommendMovie}";
-                                    var recommendMovie1 = recommendMovie2.substring(1,recommendMovie2.length-1);
-                                    var recommendMovie = recommendMovie1.split(',');
-                                    var recommendMovieOpenDt2 = "${recommendMovieOpenDt}";
-                                    var recommendMovieOpenDt1 = recommendMovieOpenDt2.substring(1,recommendMovieOpenDt2.length-1);
-                                    var recommendMovieOpenDt = recommendMovieOpenDt1.split(',');
-                                    for (var i =0;i<num;i++) {
-                                        document.getElementById('movielist').innerHTML+=recommendMovie[i]+"<br/>\n" +
-                                            recommendMovieOpenDt[i]+"<br/><br/>";
+                                    if(recommendMovie2 == "") document.getElementById('movielist').innerHTML="";
+                                    else {
+                                        var recommendMovie1 = recommendMovie2.substring(1,recommendMovie2.length-1);
+                                        var recommendMovie = recommendMovie1.split(',');
+                                        var recommendMovieOpenDt2 = "${recommendMovieOpenDt}";
+                                        var recommendMovieOpenDt1 = recommendMovieOpenDt2.substring(1,recommendMovieOpenDt2.length-1);
+                                        var recommendMovieOpenDt = recommendMovieOpenDt1.split(',');
+                                        for (var i =0;i<num;i++) {
+                                            document.getElementById('movielist').innerHTML+=recommendMovie[i]+"<br/>\n" +
+                                                recommendMovieOpenDt[i]+"<br/><br/>";
+                                        }
                                     }
+
                                 </script>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -258,6 +262,9 @@
                                 <script>
                                     var num = Number(${total})
                                     var recommendBook2 = "${recommendBook}";
+
+                                    if(recommendBook2 == "") document.getElementById('booklist').innerHTML="";
+                                    else{
                                     var recommendBook1 = recommendBook2.substring(1,recommendBook2.length-1);
                                     var recommendBook = recommendBook1.split(',');
                                     var recommendBookAuthor2 = "${recommendBookAuthor}";
@@ -266,6 +273,7 @@
                                     for (var i =0;i<num;i++) {
                                         document.getElementById('booklist').innerHTML+=recommendBook[i]+"<br/>\n" +
                                             recommendBookAuthor[i]+"<br/><br/>";
+                                    }
                                     }
                                 </script>
                                 <div class="modal-footer">
@@ -381,15 +389,13 @@
 <a class="scroll-to-top rounded js-scroll-trigger" href="#page-top">
     <i class="fa fa-angle-up"></i>
 </a>
+
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAY8nrL5q2WEN5L1mr6nyeC1NwJ5Va0W2Q&callback=showMap">
+</script>
 <!--map -->
 <script>
-    navigator.geolocation.getCurrentPosition(function(position){
-        console.log('latitude: ', position.coords.latitude);
-        console.log('longitude: ', position.coords.longitude);
-    });
-    function success(position) {
-        /*var latitude  = position.coords.latitude;
-        var longitude = position.coords.longitude;*/
+    function showMap() {
         var latitude  = ${lat};
         var longitude = ${lon};
 
@@ -403,16 +409,7 @@
             map: map
         });
     };
-    function error() {};
-    function initMap() {
-        navigator.geolocation.getCurrentPosition(success, error);
-    }
-
 </script>
-<script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAY8nrL5q2WEN5L1mr6nyeC1NwJ5Va0W2Q&callback=initMap">
-</script>
-
 <!-- Bootstrap core JavaScript -->
 <script src="../resources/vendor/jquery/jquery.min.js"></script>
 <script src="../resources/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
